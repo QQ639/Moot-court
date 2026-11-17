@@ -140,6 +140,8 @@ details#lessonBox summary::-webkit-details-marker{display:none}
 @media(max-width:920px){#docs .fpage{max-width:calc(44vh*595/842)}#docs .pic .card{padding:5px!important}#docs .pic .row{flex-wrap:nowrap;gap:4px!important;margin-bottom:4px!important}#docs .pic .b,#pgTabs button{padding:4px 8px;font-size:.78rem}}
 .pop .card.wide{max-width:900px}
 .xf.jsig{font-family:Charm,cursive;color:#7a1f1f;font-size:1em}
+#cam3d button{font-size:.82rem;padding:6px 10px}
+@media(max-width:920px){#cam3d{overflow-x:auto;max-width:100%}#cam3d button{padding:5px 7px;font-size:.75rem;white-space:nowrap}.tb3{flex-wrap:nowrap!important}#t3d{padding:5px 8px;font-size:.8rem;white-space:nowrap}}
 .golab{display:inline-block;margin-top:8px;font-weight:600;color:var(--blue);cursor:pointer;text-decoration:underline}
 .pop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
 .pop.on{display:flex}
@@ -245,7 +247,9 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
 <section id="courtroom">
  <div class="split">
   <div class="pic">
+    <div class="row tb3" style="margin-bottom:6px;gap:6px"><button class="b" id="t3d">🧊 มุมมอง 3 มิติ</button><div id="cam3d" class="seg" style="display:none"><button data-c="aud">มุมผู้ฟัง</button><button data-c="judge">มุมบัลลังก์</button><button data-c="pl">มุมทนาย</button><button data-c="top">มุมบน</button><button data-c="side">มุมข้าง</button></div></div>
     <div id="court" class="card"></div>
+    <div id="court3d" class="card" style="display:none;padding:6px"><div class="cv" style="border-radius:10px;overflow:hidden;touch-action:none"></div><div class="muted" style="font-size:.78rem;margin-top:4px">ลากเพื่อหมุน · หมุนล้อเมาส์/ถ่างสองนิ้วเพื่อซูม · แตะตัวบุคคลเพื่อดูบทบาท</div></div>
     <div class="legend"><span><i style="background:#c9d8f2"></i>ฝั่งโจทก์/ผู้ร้อง (ขวามือศาล)</span><span><i style="background:#f2cfcb"></i>ฝั่งจำเลย/ผู้คัดค้าน</span><span><i style="background:#e4ddd0"></i>นอกห้อง (พยานรอ)</span></div>
   </div>
   <div class="txt">
@@ -409,6 +413,146 @@ $('#sndBtn').onclick=()=>{
   sfx('ok');
   if(mode==='sim'&&$('#courtroom').classList.contains('on'))speakStep();
 };
+/* ================= 3D COURTROOM ================= */
+const S3={o:null,act:[],zones:[],marks:[]};
+const V3={on:false,ready:false,loading:false,people:{},cam:'aud'};
+function loadJS(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+async function init3D(){
+  if(V3.ready)return true;if(V3.loading)return false;V3.loading=true;
+  try{
+    if(!window.THREE)await loadJS('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+    if(!THREE.OrbitControls)await loadJS('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js');
+  }catch(e){V3.loading=false;flash('โหลดโมดูล 3 มิติไม่ได้ — ต้องเชื่อมต่ออินเทอร์เน็ต (ใช้ผัง 2 มิติไปก่อนได้)');return false}
+  build3D();V3.ready=true;V3.loading=false;return true;
+}
+const X3=x=>(x-500)/100, Z3=y=>(y-356)/100;
+function mat(c,o){return new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.75,metalness:.05},o||{}))}
+function box(w,h,d,c,x,y,z,o){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c,o));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;V3.scene.add(m);return m}
+function textTex(t,opt){
+  opt=opt||{};const fs=opt.fs||44,pad=18,c=document.createElement('canvas'),g=c.getContext('2d');
+  g.font=`700 ${fs}px Sarabun, Tahoma, sans-serif`;const w=Math.ceil(g.measureText(t).width)+pad*2,h=fs+pad*1.4;
+  c.width=w;c.height=h;g.font=`700 ${fs}px Sarabun, Tahoma, sans-serif`;
+  g.fillStyle=opt.bg||'rgba(255,255,255,.95)';const r=h/2;g.beginPath();g.moveTo(r,0);g.arcTo(w,0,w,h,r);g.arcTo(w,h,0,h,r);g.arcTo(0,h,0,0,r);g.arcTo(0,0,w,0,r);g.fill();
+  if(opt.stroke){g.strokeStyle=opt.stroke;g.lineWidth=4;g.stroke()}
+  g.fillStyle=opt.color||'#1d1a16';g.textBaseline='middle';g.fillText(t,pad,h/2+2);
+  const tx=new THREE.CanvasTexture(c);tx.anisotropy=4;return {tx,ar:w/h};
+}
+function label3D(t,opt){const {tx,ar}=textTex(t,opt);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,depthTest:!!(opt&&opt.depth),transparent:true,sizeAttenuation:!(opt&&opt.fixed)}));const h=(opt&&opt.h)||.24;sp.scale.set(h*ar,h,1);sp.renderOrder=10;return sp}
+function build3D(){
+  const host=$('#court3d');
+  const R=new THREE.WebGLRenderer({antialias:true,alpha:false});R.setPixelRatio(Math.min(2,devicePixelRatio||1));R.shadowMap.enabled=true;
+  host.querySelector('.cv').appendChild(R.domElement);V3.R=R;
+  const sc=new THREE.Scene();sc.background=new THREE.Color(0xf1ebdf);V3.scene=sc;
+  const cam=new THREE.PerspectiveCamera(42,1.4,.1,100);V3.camera=cam;
+  sc.add(new THREE.HemisphereLight(0xfff6e5,0x8a6a48,.85));
+  const dl=new THREE.DirectionalLight(0xffffff,.75);dl.position.set(3,9,6);dl.castShadow=true;dl.shadow.mapSize.set(1024,1024);
+  Object.assign(dl.shadow.camera,{left:-7,right:7,top:6,bottom:-6});sc.add(dl);
+  const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.enableDamping=true;ctl.maxPolarAngle=Math.PI*.49;ctl.minDistance=2.5;ctl.maxDistance=16;V3.ctl=ctl;
+  /* floor + corridor */
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(10.4,5.9),mat(0xe9dcc2));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,Z3(290));fl.receiveShadow=true;sc.add(fl);
+  const co=new THREE.Mesh(new THREE.PlaneGeometry(10.4,1.35),mat(0xd8d0c2));co.rotation.x=-Math.PI/2;co.position.set(0,0,Z3(646));co.receiveShadow=true;sc.add(co);
+  const outL=label3D('นอกห้องพิจารณา — พยานที่ยังไม่ได้เบิกความรอที่นี่',{fs:36,bg:'rgba(255,255,255,.75)',color:'#6b6257',h:.2,depth:1});outL.position.set(0,.12,Z3(690));sc.add(outL);
+  /* walls */
+  box(10.4,3.2,.15,0xe3d2b0,0,1.6,Z3(40));
+  for(let i=0;i<10;i++)box(.9,2.4,.03,0xd9c49c,X3(50+i*100),1.5,Z3(40)+.09);
+  box(1.1,.85,.06,0xb8892b,0,2.55,Z3(40)+.12);box(.95,.7,.07,0xfff8e6,0,2.55,Z3(40)+.13);
+  const em=label3D('พระบรมฉายาลักษณ์',{fs:30,bg:'rgba(0,0,0,0)',color:'#7a5b17',h:.12,depth:1});em.position.set(0,2.55,Z3(40)+.2);sc.add(em);
+  box(.12,1.4,5.6,0xe3d2b0,-5.2,.7,Z3(300),{transparent:true,opacity:.35});box(.12,1.4,5.6,0xe3d2b0,5.2,.7,Z3(300),{transparent:true,opacity:.35});
+  box(4.6,.35,.12,0x6b3f1f,-2.75,.175,Z3(580));box(4.6,.35,.12,0x6b3f1f,2.75,.175,Z3(580));
+  box(.1,.9,.14,0x6b3f1f,-.45,.45,Z3(580));box(.1,.9,.14,0x6b3f1f,.45,.45,Z3(580));
+  const dr=label3D('🚪 ประตูห้องพิจารณา',{fs:32,h:.16,color:'#6b3f1f',depth:1});dr.position.set(0,1.1,Z3(580));sc.add(dr);
+  /* bench (บัลลังก์) */
+  box(4.6,.45,1.5,0x5a3417,0,.225,Z3(150));
+  box(4,1.15,.5,0x6b3f1f,0,.575,Z3(176));box(4.1,.08,.6,0x8a5a33,0,1.18,Z3(176));
+  const bl=label3D('บัลลังก์',{fs:40,bg:'rgba(107,63,31,.9)',color:'#f3dcb5',h:.2,depth:1});bl.position.set(-1.4,.75,Z3(176)+.3);sc.add(bl);
+  box(.55,1.1,.12,0x7a1f1f,0,.95,Z3(105));
+  /* clerk desk */
+  box(1.7,.78,.36,0x8a5a33,0,.39,Z3(268));
+  /* witness stand */
+  box(1.1,.95,.08,0x6b3f1f,0,.475,Z3(370));box(.08,.95,.4,0x6b3f1f,-.55,.475,Z3(350));box(.08,.95,.4,0x6b3f1f,.55,.475,Z3(350));
+  const wl=label3D('คอกพยาน',{fs:36,h:.17,color:'#6b3f1f',depth:1});wl.position.set(0,1.12,Z3(372));sc.add(wl);
+  /* zones */
+  V3.zP=new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.5),new THREE.MeshBasicMaterial({color:0x1d4e9e,transparent:true,opacity:.14}));V3.zP.rotation.x=-Math.PI/2;V3.zP.position.set(X3(260),.01,Z3(425));sc.add(V3.zP);
+  V3.zD=new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.5),new THREE.MeshBasicMaterial({color:0xa3221c,transparent:true,opacity:.14}));V3.zD.rotation.x=-Math.PI/2;V3.zD.position.set(X3(740),.01,Z3(425));sc.add(V3.zD);
+  /* tables + signs */
+  box(2.5,.78,.42,0x8a5a33,X3(260),.39,Z3(424));box(2.5,.78,.42,0x8a5a33,X3(740),.39,Z3(424));
+  V3.signs=[];
+  /* bar + gallery */
+  for(const sx of[-1,1]){box(4.2,.06,.06,0x6b3f1f,sx*2.65,.8,Z3(462));for(let i=0;i<6;i++)box(.05,.8,.05,0x6b3f1f,sx*(.6+i*.8),.4,Z3(462))}
+  for(const zz of[489,539])for(const xx of[260,740]){box(2.6,.42,.38,0xa37a52,X3(xx),.21,Z3(zz));box(2.6,.5,.06,0xa37a52,X3(xx),.55,Z3(zz)+.2)}
+  /* dock (จำเลยต้องขัง) */
+  V3.dock=new THREE.Group();for(const [w,d,x,z] of[[.8,.05,0,-.35],[.8,.05,0,.35],[.05,.7,-.4,0],[.05,.7,.4,0]]){const m=new THREE.Mesh(new THREE.BoxGeometry(w,.7,d),mat(0x3c4a3a));m.position.set(x,.35,z);V3.dock.add(m)}
+  V3.dock.position.set(X3(940),0,Z3(368));sc.add(V3.dock);
+  /* side hints */
+  const hp=label3D('ขวามือศาล = ฝั่งโจทก์ / ผู้ร้อง',{fs:34,bg:'rgba(219,229,246,.95)',color:'#1d4e9e',h:.18,depth:1});hp.position.set(X3(170),2.15,Z3(40)+.2);sc.add(hp);
+  const hd=label3D('ซ้ายมือศาล = ฝั่งจำเลย / ผู้คัดค้าน',{fs:34,bg:'rgba(244,220,217,.95)',color:'#a3221c',h:.18,depth:1});hd.position.set(X3(830),2.15,Z3(40)+.2);sc.add(hd);
+  /* ring for active */
+  V3.ring=new THREE.Mesh(new THREE.RingGeometry(.26,.36,40),new THREE.MeshBasicMaterial({color:0xb8892b,transparent:true,opacity:.9,side:THREE.DoubleSide}));V3.ring.rotation.x=-Math.PI/2;sc.add(V3.ring);V3.ring.visible=false;
+  /* picking */
+  const ray=new THREE.Raycaster(),mv=new THREE.Vector2();let down=null;
+  R.domElement.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
+  R.domElement.addEventListener('pointerup',e=>{
+    if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=R.domElement.getBoundingClientRect();
+    mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,cam);
+    const hits=ray.intersectObjects(Object.values(V3.people).map(p=>p.g),true);
+    if(hits.length){let o=hits[0].object;while(o&&!o.userData.id)o=o.parent;if(o){const id=o.userData.id,n=NODE[id],L=(S3.o&&S3.o.labels[id])||n.l;openPop(`<div class="who"><div class="av" style="background:${n.c}">${n.ic}</div><b>${L}</b></div><p>${n.info}</p>`)}}
+  });
+  new ResizeObserver(resize3D).observe(host);resize3D();setCam('aud',true);
+  const clock=new THREE.Clock();
+  (function loop(){requestAnimationFrame(loop);if(!V3.on)return;const t=clock.getElapsedTime();
+    for(const id in V3.people){const p=V3.people[id];p.g.position.lerp(p.tgt,.09);
+      p.g.visible=id!==V3.hideId;
+      const act=p.act;p.lbl.position.y=1.42+p.base+(act?Math.sin(t*5)*.04:0);
+      const bob=act&&S3.talk?Math.abs(Math.sin(t*6))*.05:0;p.body.position.y=.38+p.base+bob;p.head.position.y=.86+p.base+bob}
+    if(V3.ring.visible&&V3.ringFor&&V3.people[V3.ringFor]){const g=V3.people[V3.ringFor].g;V3.ring.position.set(g.position.x,.02+V3.people[V3.ringFor].base,g.position.z);V3.ring.scale.setScalar(1+Math.sin(t*4)*.12)}
+    if(V3.camAnim){const a=V3.camAnim;a.k=Math.min(1,a.k+.05);cam.position.lerpVectors(a.p0,a.p1,a.k);ctl.target.lerpVectors(a.t0,a.t1,a.k);if(a.k>=1)V3.camAnim=null}
+    ctl.update();R.render(sc,cam)})();
+  sync3D();
+}
+function resize3D(){if(!V3.R)return;const w=$('#court3d .cv').clientWidth||600,h=Math.round(w*.72);V3.R.setSize(w,h);V3.camera.aspect=w/h;V3.camera.updateProjectionMatrix()}
+const CAMS={aud:[[0,3.5,4.8],[0,.5,-1]],judge:[[0,2.3,-2.8],[0,.4,2]],top:[[0,10.5,.9],[0,0,.2]],side:[[6.6,3.4,.3],[0,.5,0]],pl:[[-3.4,2.3,2.6],[.3,.6,-1.2]]};
+function setCam(k,now){V3.cam=k;V3.hideId=k==='judge'?'judge':k==='pl'?'pl':null;const [p,t]=CAMS[k];const P=new THREE.Vector3(...p),T=new THREE.Vector3(...t);
+  if(now){V3.camera.position.copy(P);V3.ctl.target.copy(T)}else V3.camAnim={p0:V3.camera.position.clone(),p1:P,t0:V3.ctl.target.clone(),t1:T,k:0};
+  document.querySelectorAll('#cam3d button').forEach(b=>b.classList.toggle('on',b.dataset.c===k))}
+function person3D(id){
+  const n=NODE[id],c=new THREE.Color(n.c),g=new THREE.Group();g.userData.id=id;
+  const robe=['judge','pl','dl'].includes(id);
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(.15,.21,.76,20),mat(robe?0x1e1e24:c));body.castShadow=true;
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.13,20,16),mat(0xe8c39e));head.castShadow=true;
+  g.add(body,head);
+  if(robe){const sash=new THREE.Mesh(new THREE.CylinderGeometry(.155,.155,.1,20),mat(c));sash.position.y=.66;body.add(sash);sash.position.y=.25}
+  const lb=label3D('',{});g.add(lb);
+  V3.scene.add(g);return {g,body,head,lbl:lb,tgt:new THREE.Vector3(),base:0,lt:''};
+}
+function sync3D(){
+  if(!V3.ready||!S3.o)return;const o=S3.o;
+  for(const id in V3.people)if(!o.use.includes(id)){V3.scene.remove(V3.people[id].g);delete V3.people[id]}
+  for(const id of o.use){
+    let p=V3.people[id];const fresh=!p;if(!p)p=V3.people[id]=person3D(id);
+    const L=o.labels[id]||NODE[id].l;
+    if(p.lt!==L){p.lt=L;const old=p.lbl;const nl=label3D(L,{fs:40,h:.042,fixed:1});p.g.remove(old);p.g.add(nl);p.lbl=nl;nl.position.y=1.42;p.lw=nl.scale.x;p.lh=nl.scale.y}
+    const [x,y]=o.pos[id];p.base=id==='judge'?.45:0;
+    p.tgt.set(X3(x),0,Z3(y));if(fresh)p.g.position.copy(p.tgt);
+  }
+  const act=S3.act==='all'?o.use:S3.act||[];
+  for(const id in V3.people){const p=V3.people[id],on=S3.act==='all'||!act.length||act.includes(id);p.act=S3.act!=='all'&&act.includes(id);
+    for(const m of[p.body,p.head]){m.material.transparent=!on;m.material.opacity=on?1:.3}p.lbl.material.opacity=on?1:.45}
+  const first=S3.act!=='all'&&act.length?act[0]:null;V3.ringFor=first;V3.ring.visible=!!first;
+  V3.dock.visible=!!o.detained;
+  V3.zP.material.opacity=(S3.zones||[]).includes('P')?.32:.14;V3.zD.material.opacity=(S3.zones||[]).includes('D')?.32:.14;
+  V3.signs.forEach(s=>V3.scene.remove(s));V3.signs=[];
+  for(const [t,x,col] of[['ป้าย: '+o.sideP,260,'#1d4e9e'],['ป้าย: '+o.sideD,740,'#a3221c']]){const s=label3D(t,{fs:38,h:.17,color:col,stroke:col});s.position.set(X3(x),.95,Z3(424)+.1);V3.scene.add(s);V3.signs.push(s)}
+}
+async function toggle3D(){
+  const want=!V3.on;
+  if(want){$('#t3d').textContent='⏳ กำลังโหลด 3 มิติ…';const ok=await init3D();if(!ok){$('#t3d').textContent='🧊 มุมมอง 3 มิติ';return}}
+  V3.on=want;$('#court').style.display=want?'none':'';$('#court3d').style.display=want?'':'none';$('#cam3d').style.display=want?'flex':'none';
+  $('#t3d').textContent=want?'🗺 กลับผัง 2 มิติ':'🧊 มุมมอง 3 มิติ';$('#t3d').classList.toggle('primary',want);
+  if(want){resize3D();sync3D()}
+}
+$('#t3d').onclick=toggle3D;
+document.querySelectorAll('#cam3d button').forEach(b=>b.onclick=()=>setCam(b.dataset.c));
+
 /* ================= COURTROOM ================= */
 const NODE={
  judge:{ic:'⚖️',c:'#7a1f1f',l:'ผู้พิพากษา',info:'นั่งบนบัลลังก์ ควบคุมกระบวนพิจารณา วินิจฉัยคำคัดค้าน บันทึกคำเบิกความ และ<b>กำหนดเลขหมายเอกสาร</b>ที่คู่ความอ้างส่ง'},
@@ -434,6 +578,7 @@ function posOf(id,slot){
   return (id==='judge'||id==='clerk')?p:[mx(p[0]),p[1]];
 }
 function svgCourt(o){
+  S3.o={use:o.use,labels:o.labels,pos:o.pos,detained:o.detained,sideP:o.sideP,sideD:o.sideD};setTimeout(sync3D,0);
   const zP=mx(120),zD=mx(600);// zone left x (width 280)
   const zPx=swapped?600:120,zDx=swapped?120:600;
   const op=o.strong?.22:.12;
@@ -478,8 +623,10 @@ function bindNodes(labels){
   document.querySelectorAll('#court .node').forEach(g=>g.onclick=()=>{
     const n=NODE[g.dataset.k];openPop(`<div class="who"><div class="av" style="background:${n.c}">${n.ic}</div><b>${labels[g.dataset.k]||n.l}</b></div><p>${n.info}</p>`)});
 }
-function movePositions(pos){document.querySelectorAll('#court .node').forEach(g=>{const p=pos[g.dataset.k];if(p)g.style.transform=`translate(${p[0]}px,${p[1]}px)`})}
+function movePositions(pos){
+  if(S3.o){S3.o.pos=pos;setTimeout(sync3D,0)}document.querySelectorAll('#court .node').forEach(g=>{const p=pos[g.dataset.k];if(p)g.style.transform=`translate(${p[0]}px,${p[1]}px)`})}
 function highlight(ids,zones=[],marks=[],talk=false){
+  S3.act=ids;S3.zones=zones;S3.marks=marks;S3.talk=talk;setTimeout(sync3D,0);
   document.querySelectorAll('#court .node').forEach(g=>{const on=ids==='all'||ids.includes(g.dataset.k);g.classList.toggle('act',on&&ids!=='all'&&ids.length>0);g.classList.toggle('talk',talk);g.classList.toggle('dim',!on&&ids.length>0)});
   document.querySelectorAll('#court .zone').forEach(z=>z.classList.toggle('hi',zones.includes(z.dataset.z)));
   document.querySelectorAll('#court .mk').forEach(m=>m.classList.toggle('hi',marks.includes(m.dataset.mk)));
