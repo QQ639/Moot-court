@@ -288,7 +288,7 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
 <nav>
   <a href="#courtroom" data-t="courtroom">① ห้องพิจารณาคดี</a>
   <a href="#exhibits" data-t="exhibits">② ปั๊มหมายเอกสาร & ยื่นเอกสาร</a>
-  <a href="#docs" data-t="docs">③ เอกสารตัวอย่าง & การคัดค้าน</a>
+  <a href="#docs" data-t="docs">③ เอกสารตัวอย่าง</a>
   <a href="#roadmap" data-t="roadmap">④ เส้นทางคดี & วันนัด</a>
   <a href="#practice" data-t="practice">⑤ แบบฝึกหัด</a>
 </nav>
@@ -321,6 +321,7 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
       <div class="muted" style="margin-top:4px">คีย์บอร์ด <kbd>←</kbd> <kbd>→</kbd> · คลิกบุคคลในภาพเพื่อดูบทบาท · <b style="color:var(--red)">วงแดง</b> บนเลขขั้น = มีการหมายเอกสาร</div>
     </div>
     <div class="card dlg" id="side"></div>
+    <details class="card" id="objGuide"><summary><b>⚖️ คู่มือการคัดค้าน และการขอให้ศาลบันทึก</b> <span class="muted">(แตะเพื่อเปิด — ใช้ประกอบฉากสืบพยาน)</span></summary><div id="objBody"></div></details>
   </div>
  </div>
 </section>
@@ -375,7 +376,6 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
     <details class="card" id="docBox" open><summary><b>📄 เอกสารตัวอย่าง:</b> <span id="curDoc"></span> <span class="muted">(แตะเพื่อเปลี่ยน)</span></summary><div id="docList"></div></details>
     <div class="card" id="docInfo"></div>
     <details class="card" id="kitBox" open><summary><b>📦 ยื่นฟ้องคดีแพ่ง ต้องเตรียมเอกสารอะไรบ้าง</b> <span class="muted">(แตะเพื่อพับ)</span></summary><div id="kitBody"></div></details>
-    <details class="card" id="objGuide"><summary><b>⚖️ คู่มือการคัดค้าน และการขอให้ศาลบันทึก</b> <span class="muted">(แตะเพื่อเปิด)</span></summary><div id="objBody"></div></details>
     <p class="muted">แบบพิมพ์ศาลจากไฟล์ที่อาจารย์ให้มา · ข้อมูลที่กรอกเป็นตัวอย่างสมมติ · ตำแหน่งคำสั่งศาลและรูปแบบการกรอกให้ยึดแนวปฏิบัติของศาลนั้น</p>
   </div>
  </div>
@@ -977,12 +977,12 @@ function renderSim(full){
   const n=st.w==='all'?{ic:'🧍',c:'#b8892b'}:NODE[st.w];
   $('#side').innerHTML=`<div class="chips top">${cur.steps.map((s,i)=>`<span class="${i===idx?'cur':i<idx?'done':''} ${s.ex?'ex':''} ${s.o?'ob':''}" data-i="${i}">${th(i+1)}</span>`).join('')}</div><div class="muted">${cur.title} · ขั้นที่ ${th(idx+1)}/${th(cur.steps.length)}</div>
    <div class="who"><div class="av" style="background:${n.c}">${n.ic}</div><b>${st.w==='all'?'ทุกคนในห้องพิจารณา':lb(st.w)}</b></div>
-   ${stageBar(st.g)}${st.o?`<span class="objb">⚠ ${st.o}</span>`:''}<div class="say">${st.s}</div>${st.a?`<div class="act">▸ ${st.a}</div>`:''}${st.ex?exMini(EX[st.ex]):''}${st.doc?st.doc.map(d=>`<span class="docbtn" data-doc="${d}">📄 ตัวอย่าง: ${DOCLIB[d].n}</span>`).join(''):''}
+   ${stageBar(st.g)}${st.o?`<span class="objb">⚠ ${st.o}</span> <span class="docbtn" onclick="$('#objGuide').open=true;$('#objGuide').scrollIntoView({behavior:'smooth'})">⚖️ คู่มือการคัดค้าน</span>`:''}<div class="say">${st.s}</div>${st.a?`<div class="act">▸ ${st.a}</div>`:''}${st.ex?exMini(EX[st.ex]):''}${st.doc?st.doc.map(d=>`<span class="docbtn" data-doc="${d}">📄 ตัวอย่าง: ${DOCLIB[d].n}</span>`).join(''):''}
    ${st.n||st.l?`<div class="note">${st.n?'📘 '+st.n:''}${st.l?`<br><span class="law">${st.l}</span>`:''}</div>`:''}
 `;
   $('#side').querySelectorAll('.chips span').forEach(s=>s.onclick=()=>{idx=+s.dataset.i;renderSim()});
   const g=$('#side .golab');if(g)g.onclick=()=>gotoLab(g.dataset.lab);
-  $('#side').querySelectorAll('.docbtn').forEach(b=>b.onclick=()=>gotoDoc(b.dataset.doc));
+  $('#side').querySelectorAll('.docbtn[data-doc]').forEach(b=>b.onclick=()=>gotoDoc(b.dataset.doc));
   $('#prev').disabled=idx===0;$('#next').disabled=idx===cur.steps.length-1;
   speakStep();
   const ms=$('#mstep');if(ms)ms.textContent=th(idx+1)+'/'+th(cur.steps.length);
@@ -1582,7 +1582,7 @@ crim:{t:'🚔 คดีอาญา',sub:'สาย ① ตำรวจ › อ�
     l:'ป.วิ.อ. ม.๓๐ · ม.๔๔/๑ · ม.๑๗๓/๑',sims:['sim:crimpre']},
    {id:'p8',t:'สืบพยานโจทก์ › สืบพยานจำเลย › พิพากษา',tag:'ศาลชั้นต้น ③',
     d:'อัยการซักถามพยานโจทก์ ทนายจำเลยถามค้าน และคัดค้านคำถามที่ไม่ชอบ ต่อด้วยพยานจำเลย แล้วศาลนัดฟังคำพิพากษา อุทธรณ์ภายใน ๑ เดือน',
-    law:['ผู้เสียหายเป็นเด็ก → สืบตาม ม.๑๗๒ ตรี (นักจิตวิทยา + จอภาพ)','บันทึกการคัดค้านลงรายงานกระบวนพิจารณา (ดูแท็บ ③)'],
+    law:['ผู้เสียหายเป็นเด็ก → สืบตาม ม.๑๗๒ ตรี (นักจิตวิทยา + จอภาพ)','บันทึกการคัดค้านลงรายงานกระบวนพิจารณา (ดูคู่มือการคัดค้านในแท็บ ①)'],
     l:'ป.วิ.อ. ม.๑๗๒ ตรี · ม.๑๙๘',sims:['sim:crimwit']}
   ]},
   {label:'② ราษฎรฟ้องเอง',note:'ต้องไต่สวนมูลฟ้องก่อนเสมอ',flow:[
