@@ -284,7 +284,7 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
 .stmp{position:absolute;border:.35cqw solid #1d4e9e;color:#1d4e9e;font:700 2cqw/1.2 Sarabun;padding:.5cqw 1.6cqw;border-radius:.7cqw;transform:rotate(-4deg);text-align:center;background:rgba(255,255,255,.55);pointer-events:none;white-space:nowrap}
 .stmp .sg{display:block;font:400 2.5cqw/1.1 Charm,cursive}
 .stmp.red{border-color:#a11;color:#a11;font-size:2.2cqw}
-.fl.ttl{transform:translate(-50%,-100%);font-weight:700;font-size:2.25cqw;color:#0b2a6b}
+.fl.ttl{transform:none;white-space:normal;width:32%;font-weight:700;font-size:1.75cqw;line-height:1.3;color:#0b2a6b}
 .stmp.plain{transform:none;border:0;background:none;padding:0;color:#d0141b;font:400 1.95cqw/1.75 Sarabun;text-align:left;border-radius:0}
 .stmp.plain.blk{color:#222}
 .stmp.plain .ln{display:inline-block;min-width:4cqw;text-align:center;line-height:1.1;border-bottom:.2cqw dotted currentColor}
@@ -1350,7 +1350,7 @@ const cl=o=>JSON.parse(JSON.stringify(o));
 const near=(f,x,y)=>Math.abs(f.x-x)<4&&Math.abs(f.y-y)<4;
 function ov(doc,p,x,y,t,c){const f=doc.pages[p].f.find(f=>near(f,x,y));if(f){f.t=t;if(c!==undefined)f.c=c}}
 function repT(doc,from,to){doc.pages.forEach(P=>P.f.forEach(f=>{if(f.t===from)f.t=to}))}
-const TTL=(D,t)=>D.pages[0].f.push({x:297,y:250,t,c:'ttl'});
+const TTL=(D,t)=>D.pages[0].f.push({x:75,y:89,t,c:'ttl'});
 /* ชื่อคำร้องบนแบบ (๗) ทุกฉบับ */
 TTL(DOCLIB.C6,'คำร้องขอส่งหมายเรียกและสำเนาคำฟ้อง');TTL(DOCLIB.C7,'คำแถลงขอส่งสำเนาเอกสาร');
 TTL(DOCLIB.D5,'คำแถลงขอให้บันทึกคำเบิกความให้ถูกต้อง และโต้แย้งคำสั่ง');TTL(DOCLIB.D6,'คำร้องคัดค้านการนำสืบพยานเอกสาร');
@@ -1513,9 +1513,9 @@ function rcpt(k){const c=KCASE[k],civ=k==='c';
 <p class="muted2" style="position:absolute;bottom:4%;left:8%;right:8%">ตัวอย่างสมมติเพื่อการสอน — ไม่ใช่ใบเสร็จจริง</p>`,f:[]}]}}
 /* ---- ตำแหน่งบนแบบพิมพ์ (หน่วย 595×842) ---- */
 const CN={f4_1:[448,113,536],f7_1:[455,104,520],f9_1:[430,113,518],n12_1:[455,96,518],n15_1:[458,103,526],f19_1:[425,98,541]};
-const JS={f4_1:[46,100],f7_1:[70,100]};      // ตรา “คำสั่งศาล” ใต้ชื่อเอกสาร
+const JS={f4_1:[46,100],f7_1:[70,122]};      // ตรา “คำสั่งศาล” ใต้ชื่อเอกสาร
 const AS={f4_1:[40,796],f7_1:[62,736]};      // ตรารับทราบคำสั่ง ท้ายกระดาษซ้าย
-const TS={f4_1:[60,96],f7_1:[86,98],n15_1:[72,118],f6_1:[56,98],html:[235,34]}; // “สำเนาถูกต้อง” ใต้ชื่อเอกสาร
+const TS={f4_1:[60,96],f7_1:[75,122],n15_1:[72,118],f6_1:[56,98],html:[235,34]}; // “สำเนาถูกต้อง” ใต้ชื่อเอกสาร
 const SN=['','ชุด ๑ ส่งศาล','ชุด ๒ ส่งจำเลย','ชุด ๓ กลับสำนักงาน'];
 const BASE={
  c:{fy:{n:'คำฟ้อง + คำขอท้ายคำฟ้อง (แบบ ๔)',parts:[['C2',['ฟ้อง ๑','ฟ้อง ๒']],['C3',['คำขอท้าย','ผู้เรียง']]],order:1,hear:1},
@@ -1554,7 +1554,7 @@ function notesFor(k,key,s,D){
    N.push({p:0,x:Math.max(14,A[0]-24),y:A[1]+8,t:'ท้ายกระดาษ ซ้ายมือ (หน้าแรก): ตรารับทราบคำสั่ง — ทนายลงชื่อ และเขียนวันที่รับทราบ ว/ด/ป · ถ้าศาลสั่งให้แก้ไข/ไม่รับ ถือว่าทราบตามวันนั้น ต้องโทรตามคำสั่งภายใน ๑–๒ วัน (ขั้น ๑.๖)'});
   }
   if(key==='fy')N.push({p:2,x:45,y:120,t:crim?'คำขอท้ายคำฟ้องอาญา (แบบ ๖) ระบุบทมาตราที่ขอให้ลงโทษ และจำนวนสำเนาคำฟ้อง = จำนวนจำเลย':'คำขอท้ายคำฟ้องต้องอยู่ในชุดเดียวกับคำฟ้องเสมอ — สำเนาก็ต้องมีครบ'});
-  if(D.pages[0].im==='f7_1')N.push({p:0,x:40,y:244,t:'ชื่อคำร้อง — เขียนให้ชัดทุกฉบับ ศาลและเจ้าหน้าที่รู้ทันทีว่าขออะไร'});
+  if(D.pages[0].im==='f7_1')N.push({p:0,x:26,y:96,t:'ชื่อคำร้อง — อยู่ใต้คำว่า “คำร้อง / คำแถลง / คำขอ” เขียนให้ชัดทุกฉบับ ศาลและเจ้าหน้าที่รู้ทันทีว่าขออะไร'});
   if(key==='cp')N.push({p:0,x:45,y:606,t:'ขอถือเอาเอกสารท้ายคำฟ้องเป็นการส่งสำเนาเอกสารตาม ป.วิ.พ. ม.๙๐ — ไม่ต้องทำสำเนาซ้ำอีกชุด'});
   if(key==='rq')N.push({p:2,x:45,y:120,t:'แนบสำเนาข้อมูลทะเบียนราษฎรของจำเลย (ทร.๑๔/๑) — ถ้าจำเลยเป็นนิติบุคคล แนบหนังสือรับรองนิติบุคคลแทน'});
   if(key==='rq0')N.push({p:1,x:45,y:92,t:'บรรยายให้ครบ: การตาย ภูมิลำเนา ทายาท ทรัพย์มรดก ความจำเป็น คุณสมบัติผู้ร้อง (ป.พ.พ. ม.๑๗๑๓, ๑๗๑๘) และความยินยอมของทายาท'});
