@@ -316,6 +316,22 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
 @media(min-width:921px){#courtroom .split{grid-template-columns:minmax(0,2.4fr) minmax(330px,1fr)}
  #court svg{max-height:calc(100vh - 130px);width:100%}}
 @media(min-width:1400px){main{max-width:min(1880px,98vw)}}
+.nbhd{display:flex;gap:4%;align-items:baseline;border-bottom:2px solid #333;padding-bottom:.4em;margin-bottom:.6em}.nbhd b{font-size:1.3em;flex:1}.nbhd span{white-space:nowrap}
+.nbx{outline:none;color:#0b2a6b;white-space:pre-wrap;word-break:break-word}
+.nbx.in{display:inline-block;min-width:7em;border-bottom:1px dotted #777;padding:0 .3em}.nbx.in.wide{min-width:70%}
+.nbx.full{position:absolute;left:8%;right:8%;top:15%;bottom:6%;line-height:1.8}.nbx.full.top{top:6%}
+.nbx.lined{line-height:3.4cqw;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(3.4cqw - 1px),#bccbe0 calc(3.4cqw - 1px),#bccbe0 3.4cqw);background-attachment:local}
+.nbx:empty::before{content:attr(data-ph);color:#bbb}.nbx.full:empty::before{content:'แตะแล้วพิมพ์บันทึก…'}
+.nbx.in:focus,.nbx.cell:focus{background-color:rgba(255,246,214,.6)}
+.nbt td{height:3.3cqw;padding:.15em .35em!important}.nbt td.c{text-align:center;color:#777}.nbt .cell{min-height:100%;font-size:.95em}
+.nbft{margin-top:.8em}
+@media print{@page{size:A4;margin:0}
+ body.printing *{visibility:hidden!important}
+ body.printing #docOv,body.printing #docOv .ovpage,body.printing #docOv .ovpage *{visibility:visible!important}
+ body.printing #docOv{position:fixed!important;inset:0!important;width:100%!important;max-height:none!important;box-shadow:none!important;padding:0!important;overflow:visible!important}
+ body.printing #docOv .ovbar,body.printing #docOv .ovtip,body.printing .pin{display:none!important}
+ body.printing #docOv .ovpage{width:210mm!important;height:297mm!important;box-shadow:none!important;outline:none!important;margin:0!important}
+ body.printing .nbx:empty::before{content:''}}
 </style>
 </head>
 <body>
@@ -1313,13 +1329,15 @@ function docGroups(){
 let formGrp=null;
 function renderFormBox(){
  const G=docGroups(),gs=Object.keys(G);if(!formGrp||!G[formGrp])formGrp=gs.find(g=>g.includes('ชุด ๑'))||gs[0];
- $('#formBody').innerHTML=`<select id="formGrp" style="width:100%;margin:6px 0">${gs.map(g=>`<option ${g===formGrp?'selected':''}>${g}</option>`).join('')}</select>
+ $('#formBody').innerHTML=`<div class="row" style="gap:5px;margin-top:6px"><button class="b" onclick="openDocOv('N3')">📝 แบบบันทึกเอกสารที่ต้องจัดทำ</button><button class="b" onclick="openDocOv('N1')">📄 กระดาษเปล่า</button><button class="b" onclick="openDocOv('N2')">📃 กระดาษมีเส้น</button></div>
+  <select id="formGrp" style="width:100%;margin:6px 0">${gs.map(g=>`<option ${g===formGrp?'selected':''}>${g}</option>`).join('')}</select>
   <div class="lbtns">${G[formGrp].map(([k,n])=>`<button data-d="${k}" class="${k===ovId?'on':''}">${n}</button>`).join('')}</div>
   <p class="muted" style="margin:6px 0 0">แตะชื่อเอกสาร → เปิด<b>ทับฉาก</b> · กด ✍️ แล้วแตะบนเอกสารเพื่อพิมพ์อธิบายเพิ่ม</p>`;
  $('#formGrp').onchange=e=>{formGrp=e.target.value;renderFormBox()};
  $('#formBody').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>openDocOv(b.dataset.d));
 }
 function openDocOv(id){ovId=id;ovPg=0;renderDocOv();renderFormBox();$('#courtroom').scrollIntoView({block:'start'})}
+function confirmClr(){return window.confirm('ลบข้อความที่พิมพ์ไว้ในหน้านี้ทั้งหมด?')}
 function closeDocOv(){ovId=null;ovType=false;$('#docOv').style.display='none';renderFormBox()}
 function renderDocOv(){
  const o=$('#docOv');if(!ovId||!DOCLIB[ovId]){o.style.display='none';return}
@@ -1329,19 +1347,20 @@ function renderDocOv(){
  o.className='docov '+ovSize;o.style.display='block';
  o.innerHTML=`<div class="ovbar"><b title="${escH(D.n)}">📄 ${escH(D.n)}</b>
   <span class="seg">${D.pages.map((p,i)=>`<button data-p="${i}" class="${i===ovPg?'on':''}">${p.lab||(i===0?'หน้า':'หลัง')}</button>`).join('')}</span>
-  <button class="b ${ovType?'primary':''}" id="ovType">✍️ พิมพ์เพิ่ม</button><button class="b" id="ovClr" title="ลบข้อความที่พิมพ์ในหน้านี้">🧽</button>
+  <button class="b ${ovType?'primary':''}" id="ovType">✍️ พิมพ์เพิ่ม</button><button class="b" id="ovClr" title="ลบข้อความที่พิมพ์ในหน้านี้">🧽</button><button class="b" id="ovPr" title="พิมพ์ / บันทึกเป็น PDF" onclick="printOv()">🖨</button>
   <button class="b" id="ovSz">${ovSize==='half'?'⬜ เต็มฉาก':'◧ ครึ่งฉาก'}</button><button class="b" id="ovX">✖</button></div>
   ${ovType?'<div class="ovtip">แตะตรงไหนบนเอกสารเพื่อพิมพ์ · แตะข้อความเดิมเพื่อแก้ · ลบข้อความทั้งหมดในช่องเพื่อเอาออก</div>':''}
   <div class="fpage ovpage ${ovType?'typing':''}">${pg}</div>`;
+ bindNB(o);
  o.querySelectorAll('.ovbar .seg button').forEach(b=>b.onclick=()=>{ovPg=+b.dataset.p;renderDocOv()});
  $('#ovType').onclick=()=>{ovType=!ovType;renderDocOv()};
- $('#ovClr').onclick=()=>{delete ANN[key];saveAnn();renderDocOv()};
+ $('#ovClr').onclick=()=>{if(!confirmClr())return;delete ANN[key];o.querySelectorAll('[data-nb]').forEach(el=>delete NB[el.dataset.nb]);saveAnn();saveNB();renderDocOv()};
  $('#ovSz').onclick=()=>{ovSize=ovSize==='half'?'full':'half';renderDocOv()};
  $('#ovX').onclick=closeDocOv;
  const fp=o.querySelector('.ovpage');
  const commit=(el,i)=>{const t=el.innerText.trim();if(!t){A.splice(i,1)}else A[i].t=t;ANN[key]=A;saveAnn()};
  fp.querySelectorAll('.ann').forEach(el=>{const i=+el.dataset.i;el.onblur=()=>{commit(el,i);renderDocOv()};el.onclick=e=>e.stopPropagation()});
- if(ovType)fp.onclick=e=>{if(e.target.closest('.ann'))return;const r=fp.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*595,y=(e.clientY-r.top)/r.height*842;
+ if(ovType)fp.onclick=e=>{if(e.target.closest('.ann,[data-nb]'))return;const r=fp.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*595,y=(e.clientY-r.top)/r.height*842;
   A.push({x,y,t:''});ANN[key]=A;const i=A.length-1;
   const el=document.createElement('div');el.className='ann';el.contentEditable='true';el.style.left=(x/595*100)+'%';el.style.top=(y/842*100)+'%';fp.appendChild(el);el.focus();
   el.onclick=ev=>ev.stopPropagation();el.onblur=()=>{commit(el,i);renderDocOv()};el.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();el.blur()}}};
@@ -1895,7 +1914,7 @@ function renderDoc(){
   $('#curDoc').textContent=D.n;
   $('#pgTabs').innerHTML=D.pages.map((p,i)=>`<button data-p="${i}" class="${i===docPg?'on':''}">${p.lab||(i===0?'หน้า':'หลัง')}</button>`).join('');
   $('#pgTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{docPg=+b.dataset.p;renderDoc()});
-  const fp=$('#fpage');fp.className='fpage'+(docFill?'':' blank');fp.innerHTML=pageHTML(docPg,true);
+  const fp=$('#fpage');fp.className='fpage'+(docFill?'':' blank');fp.innerHTML=pageHTML(docPg,true);if(typeof bindNB==='function')bindNB(fp);
   fp.querySelectorAll('.pin').forEach(b=>b.onclick=()=>{notSel=+b.dataset.i;renderDoc();const li=$('#docInfo li.on');li&&li.scrollIntoView({block:'nearest',behavior:'smooth'})});
   $('#fillBtn').textContent=docFill?'✍️ ซ่อนการกรอก':'✍️ แสดงการกรอก';
   $('#docInfo').innerHTML=`<h2>${D.n}</h2><div class="muted">👤 ${D.who}</div><p style="margin:6px 0">${D.desc}</p>
@@ -1942,6 +1961,27 @@ function renderKit(){
  $('#kitBody').querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{kType=b.dataset.k;renderKit()});
 }
 renderKit();
+
+/* ================= กระดาษบันทึก (พิมพ์ได้ + สั่งพิมพ์ได้) ================= */
+let NB={};try{NB=JSON.parse(localStorage.getItem('moot_nb')||'{}')||{}}catch(e){NB={}}
+const saveNB=()=>{try{localStorage.setItem('moot_nb',JSON.stringify(NB))}catch(e){}};
+const nbE=(k,cls,ph)=>`<div class="nbx ${cls||''}" contenteditable="true" data-nb="${k}" data-ph="${ph||''}"></div>`;
+(function(){
+ const G='📝 กระดาษบันทึก (พิมพ์ได้)';
+ const head=(t,k)=>`<div class="nbhd"><b>${t}</b><span>คดี ${nbE(k+'-case','in','..........')}</span><span>วันที่ ${nbE(k+'-date','in','..........')}</span></div>`;
+ const rows=[...Array(14)].map((_,i)=>`<tr><td class="c">${th(i+1)}</td>${['doc','form','who','qty','due','ok'].map(c=>`<td>${nbE('N3-'+i+'-'+c,'cell')}</td>`).join('')}</tr>`).join('');
+ DOCLIB.N3={g:G,n:'แบบบันทึกเอกสารที่ต้องจัดทำ',who:'ผู้เรียน / ผู้สอน',desc:'จดรายการเอกสารที่ต้องเตรียมระหว่างฟังบรรยาย — แตะช่องแล้วพิมพ์ได้เลย บันทึกในเครื่องอัตโนมัติ สั่งพิมพ์ได้จากปุ่ม 🖨',notes:[],
+  pages:[{lab:'ตาราง',html:head('บันทึกเอกสารที่ต้องจัดทำ','N3')+`<table class="ht nbt"><tr><th style="width:6%">ที่</th><th style="width:30%">เอกสารที่ต้องจัดทำ</th><th style="width:14%">แบบพิมพ์</th><th style="width:17%">ผู้จัดทำ / ลงชื่อ</th><th style="width:9%">จำนวน</th><th style="width:15%">กำหนดยื่น</th><th style="width:9%">✔</th></tr>${rows}</table>
+   <div class="nbft">หมายเหตุ ${nbE('N3-note','in wide','..........')}</div>`,f:[]}]};
+ DOCLIB.N1={g:G,n:'กระดาษเปล่า',who:'ผู้เรียน / ผู้สอน',desc:'กระดาษ A4 เปล่า แตะแล้วพิมพ์บันทึกได้ทั้งหน้า',notes:[],
+  pages:[{lab:'หน้า ๑',html:head('บันทึก','N1')+nbE('N1-body','full')},{lab:'หน้า ๒',html:nbE('N1b-body','full top')}]};
+ DOCLIB.N2={g:G,n:'กระดาษมีเส้น',who:'ผู้เรียน / ผู้สอน',desc:'กระดาษมีเส้นบรรทัด แตะแล้วพิมพ์บันทึกได้',notes:[],
+  pages:[{lab:'หน้า ๑',html:head('บันทึก','N2')+nbE('N2-body','full lined')},{lab:'หน้า ๒',html:nbE('N2b-body','full lined top')}]};
+['N1','N2','N3'].forEach(k=>DOCLIB[k].pages.forEach(P=>P.f=P.f||[]));
+})();
+function bindNB(root){root.querySelectorAll('[data-nb]').forEach(el=>{const k=el.dataset.nb;el.innerText=NB[k]||'';
+ el.oninput=()=>{const t=el.innerText;if(t.trim())NB[k]=t;else delete NB[k];saveNB()};el.onclick=e=>e.stopPropagation()})}
+function printOv(){if(document.activeElement)document.activeElement.blur();document.body.classList.add('printing');setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('printing'),300)},50)}
 renderFormBox();
 function gotoKit(){location.hash='#docs';$('#kitBox').open=true;setTimeout(()=>$('#kitBox').scrollIntoView({behavior:'smooth'}),60)}
 
