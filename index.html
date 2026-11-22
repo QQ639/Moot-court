@@ -1261,6 +1261,7 @@ function saveScene(){SCN_ST[fBg]={c:FREE,n:fseq,p:PROPS_ON,q:pseq};try{localStor
 function addProp(k,x,y,lbl,s){const id='p'+(pseq++);PROPS_ON.push({id,k,x:x??500,y:y??380,lbl:lbl??null,s:s||1});return id}
 function presetScene(bg){FREE=[];fseq=1;PROPS_ON=[];pseq=1;
  if(bg==='court'){preset()}
+ if(bg==='blank'){[['โจทก์','p'],['จำเลย','d'],['ผู้เสียหาย','vic'],['พยาน','w'],['ตำรวจ','police'],['ทนายโจทก์','pl'],['ทนายจำเลย','dl']].forEach((a,i)=>addFree(a[0],a[1],110+i*130,620))}
  if(bg==='outdoor'){addProp('house',230,330,'บ้านจำเลย',1.5);addProp('fence',470,470);addProp('gate',610,470);addProp('houseno',520,380,'บ้านเลขที่ ๙๙');addProp('mailbox',700,440);
   addProp('tree',90,360);addProp('dog',360,520);addProp('car',840,640);addProp('summ',780,330,'หมายเรียก + สำเนาคำฟ้อง');addProp('stRecv',900,250);addProp('stPost',430,300,'ปิดหมาย (กรณีไม่มีผู้รับ)');
   addFree('เจ้าพนักงานเดินหมาย','server',700,530);addFree('นายบี สมมติ (จำเลย)','d',560,530)}
