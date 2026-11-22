@@ -351,7 +351,7 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
 <section id="courtroom">
  <div class="split">
   <div class="pic">
-    <div class="row tb3" style="margin-bottom:6px;gap:6px"><button class="b" id="t3d">🧊 มุมมอง 3 มิติ</button><button class="b" id="zmBtn" onclick="openZoomPop()">📸 ภาพฉากสำหรับ Zoom</button><div id="cam3d" class="seg" style="display:none"><button data-c="aud">มุมผู้ฟัง</button><button data-c="judge">มุมบัลลังก์</button><button data-c="pl">มุมทนาย</button><button data-c="top">มุมบน</button><button data-c="side">มุมข้าง</button></div></div>
+    <div class="row tb3" style="margin-bottom:6px;gap:6px"><button class="b" id="t3d">🧊 มุมมอง 3 มิติ</button><button class="b" id="layBtn" onclick="setCourtLayout(courtLayout==='face'?'row':'face')" title="สลับรูปแบบโต๊ะทนาย">🪑 โต๊ะทนาย</button><button class="b" id="zmBtn" onclick="openZoomPop()">📸 ภาพฉากสำหรับ Zoom</button><div id="cam3d" class="seg" style="display:none"><button data-c="aud">มุมผู้ฟัง</button><button data-c="judge">มุมบัลลังก์</button><button data-c="pl">มุมทนาย</button><button data-c="top">มุมบน</button><button data-c="side">มุมข้าง</button></div></div>
     <div id="court" class="card"></div>
     <div id="docOv" class="docov" style="display:none"></div>
     <div id="court3d" class="card" style="display:none;padding:6px"><div class="cv" style="border-radius:10px;overflow:hidden;touch-action:none"></div><div class="muted" style="font-size:.78rem;margin-top:4px">ลากเพื่อหมุน · หมุนล้อเมาส์/ถ่างสองนิ้วเพื่อซูม · แตะตัวบุคคลเพื่อดูบทบาท</div></div>
@@ -586,7 +586,7 @@ function build3D(){
   V3.zP=new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.5),new THREE.MeshBasicMaterial({color:0x1d4e9e,transparent:true,opacity:.14}));V3.zP.rotation.x=-Math.PI/2;V3.zP.position.set(X3(260),.01,Z3(425));sc.add(V3.zP);
   V3.zD=new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.5),new THREE.MeshBasicMaterial({color:0xa3221c,transparent:true,opacity:.14}));V3.zD.rotation.x=-Math.PI/2;V3.zD.position.set(X3(740),.01,Z3(425));sc.add(V3.zD);
   /* tables + signs */
-  box(2.5,.78,.42,0x8a5a33,X3(260),.39,Z3(424));box(2.5,.78,.42,0x8a5a33,X3(740),.39,Z3(424));
+  V3.tabs=[box(2.5,.78,.42,0x8a5a33,X3(260),.39,Z3(424)),box(2.5,.78,.42,0x8a5a33,X3(740),.39,Z3(424))];apply3DLayout();
   V3.signs=[];
   /* bar + gallery */
   for(const sx of[-1,1]){box(4.2,.06,.06,0x6b3f1f,sx*2.65,.8,Z3(462));for(let i=0;i<6;i++)box(.05,.8,.05,0x6b3f1f,sx*(.6+i*.8),.4,Z3(462))}
@@ -654,6 +654,15 @@ function sync3D(){
   V3.signs.forEach(s=>V3.scene.remove(s));V3.signs=[];
   for(const [t,x,col] of[['ป้าย: '+o.sideP,260,'#1d4e9e'],['ป้าย: '+o.sideD,740,'#a3221c']]){const s=label3D(t,{fs:38,h:.17,color:col,stroke:col});s.position.set(X3(x),.95,Z3(424)+.1);V3.scene.add(s);V3.signs.push(s)}
 }
+function apply3DLayout(){if(!V3.tabs)return;const f=courtLayout==='face';
+  V3.tabs.forEach((m,i)=>{const sx=i?1:-1;if(f){m.rotation.y=Math.PI/2;m.scale.set(.64,1,1);m.position.set(X3(500+sx*140),.39,Z3(381))}else{m.rotation.y=0;m.scale.set(1,1,1);m.position.set(X3(i?740:260),.39,Z3(424))}})}
+function setCourtLayout(L){
+  const old=courtLayout;if(L===old)return;courtLayout=L;try{localStorage.setItem('moot_layout',L)}catch(e){}
+  const A=old==='face'?SEAT_FACE:SEAT_ROW,B=L==='face'?SEAT_FACE:SEAT_ROW;
+  if(typeof fBg!=='undefined'&&fBg==='court'&&typeof FREE!=='undefined'){let ch=false;FREE.forEach(f=>{for(const k in A){const ax=mx(A[k][0]);if(Math.abs(f.x-ax)<20&&Math.abs(f.y-A[k][1])<20){f.x=mx(B[k][0]);f.y=B[k][1];ch=true;break}}});if(ch)saveScene()}
+  apply3DLayout();renderCourt();layoutBtn();
+}
+function layoutBtn(){const b=$('#layBtn');if(b)b.textContent=courtLayout==='face'?'🪑 โต๊ะทนาย: หันหน้าเข้าหากัน':'🪑 โต๊ะทนาย: แนวนอน (หันหน้าเข้าบัลลังก์)'}
 async function toggle3D(){
   const want=!V3.on;
   if(want){$('#t3d').textContent='⏳ กำลังโหลด 3 มิติ…';const ok=await init3D();if(!ok){$('#t3d').textContent='🧊 มุมมอง 3 มิติ';return}}
@@ -677,6 +686,8 @@ const NODE={
  wP1:{ic:'🙋',c:'#2f66b3',l:'พยานโจทก์',info:'พยานที่ยังไม่ได้เบิกความต้อง<b>รอนอกห้องพิจารณา</b>ขณะสืบพยานปากอื่น (ป.วิ.พ. ม.๑๑๔) เมื่อเบิกความเสร็จ ถ้าศาลอนุญาตให้อยู่ฟัง มักนั่งที่นั่งผู้ฟังด้านหลังฝั่งของฝ่ายตน'},
  wD1:{ic:'🙋',c:'#b0453d',l:'พยานจำเลย',info:'เช่นเดียวกับพยานโจทก์ — รอนอกห้องจนกว่าจะถูกเรียกเข้าเบิกความ ทนายต้องกำชับพยานฝ่ายตนตั้งแต่ก่อนเข้าห้อง'}
 };
+let courtLayout='row';try{courtLayout=localStorage.getItem('moot_layout')||'row'}catch(e){}
+const SEAT_ROW={pl:[205,352],p:[312,352],dl:[688,352],d:[795,352]},SEAT_FACE={pl:[292,348],p:[292,428],dl:[708,348],d:[708,428]};
 const SEAT={judge:[500,128],clerk:[500,238],pl:[205,352],p:[312,352],dl:[688,352],d:[795,352],dc:[940,360],guard:[940,440]};
 const OUT={wP1:[330,648],wD1:[670,648],p:[250,648],d:[750,648]};
 const GAL={wP1:[200,508],wD1:[800,508],p:[300,508],d:[700,508]};
@@ -685,8 +696,14 @@ let swapped=false, mode='seat', seatType='civil';
 const mx=x=>swapped?1000-x:x;
 function posOf(id,slot){
   if(slot==='stand')return STAND;
-  const t=slot==='out'?OUT:slot==='gal'?GAL:SEAT;const p=t[id]||SEAT[id];
+  const ST=courtLayout==='face'?Object.assign({},SEAT,SEAT_FACE):SEAT;const t=slot==='out'?OUT:slot==='gal'?GAL:ST;const p=t[id]||ST[id];
   return (id==='judge'||id==='clerk')?p:[mx(p[0]),p[1]];
+}
+function faceTables(zPx,zDx,o){
+  const T=(zx,lab,col)=>{const tx=zx<500?zx+225:zx+15;return `<rect x="${tx}" y="306" width="40" height="150" rx="5" fill="#8a5a33"/><rect x="${tx+6}" y="314" width="28" height="134" rx="3" fill="#a87447" opacity=".55"/>
+   <circle cx="${tx+20}" cy="340" r="5" fill="#333"/><circle cx="${tx+20}" cy="420" r="5" fill="#333"/>
+   <rect x="${tx-40}" y="278" width="120" height="22" rx="3" fill="#fff" stroke="#8a5a33"/><text x="${tx+20}" y="294" text-anchor="middle" font-size="13.5" font-weight="700" fill="${col}">ป้าย: ${lab}</text>`};
+  return T(zPx,o.sideP,'#1d4e9e')+T(zDx,o.sideD,'#a3221c');
 }
 function svgCourt(o){
   S3.o={use:o.use,labels:o.labels,pos:o.pos,detained:o.detained,sideP:o.sideP,sideD:o.sideD};setTimeout(sync3D,0);
@@ -705,9 +722,9 @@ function svgCourt(o){
   <rect x="415" y="254" width="170" height="28" rx="4" fill="#8a5a33"/>
   <g class="mk" data-mk="stand"><rect x="445" y="340" width="110" height="34" rx="5" fill="none" stroke="#6b3f1f" stroke-width="5"/>
   <text x="500" y="392" text-anchor="middle" font-size="13" font-weight="700" fill="#6b3f1f">คอกพยาน</text></g>
-  <rect x="${zPx+15}" y="404" width="250" height="40" rx="5" fill="#8a5a33"/><rect x="${zDx+15}" y="404" width="250" height="40" rx="5" fill="#8a5a33"/>
+  ${courtLayout==='face'?faceTables(zPx,zDx,o):`<rect x="${zPx+15}" y="404" width="250" height="40" rx="5" fill="#8a5a33"/><rect x="${zDx+15}" y="404" width="250" height="40" rx="5" fill="#8a5a33"/>
   <rect x="${zPx+70}" y="413" width="140" height="22" rx="3" fill="#fff"/><text x="${zPx+140}" y="429" text-anchor="middle" font-size="14" font-weight="700" fill="#1d4e9e">ป้าย: ${o.sideP}</text>
-  <rect x="${zDx+70}" y="413" width="140" height="22" rx="3" fill="#fff"/><text x="${zDx+140}" y="429" text-anchor="middle" font-size="14" font-weight="700" fill="#a3221c">ป้าย: ${o.sideD}</text>
+  <rect x="${zDx+70}" y="413" width="140" height="22" rx="3" fill="#fff"/><text x="${zDx+140}" y="429" text-anchor="middle" font-size="14" font-weight="700" fill="#a3221c">ป้าย: ${o.sideD}</text>`}
   ${o.detained?`<g class="mk" data-mk="dock"><rect x="${mx(905)-(swapped?70:0)}" y="328" width="70" height="66" rx="6" fill="none" stroke="#3c4a3a" stroke-width="3" stroke-dasharray="6 4"/><text x="${mx(940)}" y="408" text-anchor="middle" font-size="11" fill="#3c4a3a">ที่นั่งจำเลยต้องขัง</text></g>`:''}
   <line x1="40" y1="462" x2="960" y2="462" stroke="#6b3f1f" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>
   <text x="${mx(60)}" y="456" text-anchor="${swapped?'end':'start'}" font-size="11" fill="#6b3f1f">คอกกั้น</text>
@@ -1109,7 +1126,8 @@ const escH=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 function regFree(){FREE.forEach(f=>{const r=RT[f.r]||RT.other;NODE[f.id]={ic:r.ic,c:r.c,l:f.name||r.l,robe:r.robe,img:f.img||null,cam:!!f.cam,info:`บทบาท: ${r.l}`}})}
 function addFree(name,role,x,y,say){const id='f'+(fseq++);FREE.push({id,name:name||RT[role].l,r:role,x:x??500,y:y??520,say:say||''});saveFree();return id}
 function preset(){FREE=[];fseq=1;
-  [['judge','ผู้พิพากษา',500,128],['clerk','เจ้าหน้าที่หน้าบัลลังก์',500,238],['pl','ทนายโจทก์',205,352],['p','โจทก์',312,352],['dl','ทนายจำเลย',688,352],['d','จำเลย',795,352],['w','พยานโจทก์',330,648],['w','พยานจำเลย',670,648]]
+  const L=courtLayout==='face'?SEAT_FACE:SEAT_ROW;
+  [['judge','ผู้พิพากษา',500,128],['clerk','เจ้าหน้าที่หน้าบัลลังก์',500,238],['pl','ทนายโจทก์',...L.pl],['p','โจทก์',...L.p],['dl','ทนายจำเลย',...L.dl],['d','จำเลย',...L.d],['w','พยานโจทก์',330,648],['w','พยานจำเลย',670,648]]
    .forEach(a=>addFree(a[1],a[0],a[2],a[3]));}
 function renderFree(){
   regFree();const ids=FREE.map(f=>f.id),labels={},pos={};
@@ -1961,6 +1979,7 @@ function renderKit(){
  $('#kitBody').querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{kType=b.dataset.k;renderKit()});
 }
 renderKit();
+layoutBtn();
 
 /* ================= กระดาษบันทึก (พิมพ์ได้ + สั่งพิมพ์ได้) ================= */
 let NB={};try{NB=JSON.parse(localStorage.getItem('moot_nb')||'{}')||{}}catch(e){NB={}}
