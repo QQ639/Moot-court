@@ -335,7 +335,7 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
 <section id="courtroom">
  <div class="split">
   <div class="pic">
-    <div class="row tb3" style="margin-bottom:6px;gap:6px"><button class="b" id="t3d">🧊 มุมมอง 3 มิติ</button><div id="cam3d" class="seg" style="display:none"><button data-c="aud">มุมผู้ฟัง</button><button data-c="judge">มุมบัลลังก์</button><button data-c="pl">มุมทนาย</button><button data-c="top">มุมบน</button><button data-c="side">มุมข้าง</button></div></div>
+    <div class="row tb3" style="margin-bottom:6px;gap:6px"><button class="b" id="t3d">🧊 มุมมอง 3 มิติ</button><button class="b" id="zmBtn" onclick="openZoomPop()">📸 ภาพฉากสำหรับ Zoom</button><div id="cam3d" class="seg" style="display:none"><button data-c="aud">มุมผู้ฟัง</button><button data-c="judge">มุมบัลลังก์</button><button data-c="pl">มุมทนาย</button><button data-c="top">มุมบน</button><button data-c="side">มุมข้าง</button></div></div>
     <div id="court" class="card"></div>
     <div id="docOv" class="docov" style="display:none"></div>
     <div id="court3d" class="card" style="display:none;padding:6px"><div class="cv" style="border-radius:10px;overflow:hidden;touch-action:none"></div><div class="muted" style="font-size:.78rem;margin-top:4px">ลากเพื่อหมุน · หมุนล้อเมาส์/ถ่างสองนิ้วเพื่อซูม · แตะตัวบุคคลเพื่อดูบทบาท</div></div>
@@ -704,12 +704,12 @@ function svgCourt(o){
   <g class="mk" data-mk="out"><rect x="20" y="612" width="960" height="94" rx="10" fill="none" stroke="#b5a98f" stroke-dasharray="5 5"/>
   <text x="500" y="630" text-anchor="middle" font-size="12" fill="#6b6257">นอกห้องพิจารณา — ที่รอของพยานที่ยังไม่ได้เบิกความ (ป.วิ.พ. ม.๑๑๔)</text></g>`)+(o.props||[]).map(propSVG).join('');
   for(const id of o.use){
-    const n=NODE[id],[x,y]=o.pos[id],L=o.labels[id]||n.l,w=L.length*7.4+18;
+    const n=NODE[id],[x,y]=o.pos[id],L=o.labels[id]||n.l,w=L.length*7.4+18,big=!!(n.img||n.cam),RR=big?30:24;
     h+=`<g class="node" data-k="${id}" style="transform:translate(${x}px,${y}px)">
-      <g class="ring"><path d="M0,-29 l-8,-12 h16z M0,29 l-8,12 h16z M-29,0 l-12,-8 v16z M29,0 l12,-8 v16z"/></g><circle class="disc" r="24" fill="${n.c}"/>
-      <text y="8" text-anchor="middle" font-size="22">${n.ic}</text>
-      <rect x="${-w/2}" y="27" width="${w}" height="20" rx="10" fill="#fff" stroke="#ddd2bf"/>
-      <text y="42" text-anchor="middle" font-size="13" font-weight="600" fill="#1d1a16">${L}</text>
+      <g class="ring"><path d="M0,-29 l-8,-12 h16z M0,29 l-8,12 h16z M-29,0 l-12,-8 v16z M29,0 l12,-8 v16z"/></g><circle class="disc" r="${RR}" fill="${n.c}"/>
+      ${n.cam?`<foreignObject x="-27" y="-27" width="54" height="54"><video xmlns="http://www.w3.org/1999/xhtml" class="camv" autoplay="" muted="" playsinline="" style="width:54px;height:54px;border-radius:50%;object-fit:cover;display:block;transform:scaleX(-1);background:#222"></video></foreignObject>`:n.img?`<clipPath id="cp-${id}"><circle r="27"/></clipPath><image href="${n.img}" x="-27" y="-27" width="54" height="54" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp-${id})"/>`:`<text y="8" text-anchor="middle" font-size="22">${n.ic}</text>`}
+      <rect x="${-w/2}" y="${RR+3}" width="${w}" height="20" rx="10" fill="#fff" stroke="#ddd2bf"/>
+      <text y="${RR+18}" text-anchor="middle" font-size="13" font-weight="600" fill="#1d1a16">${L}</text>
       <g class="bub"><rect x="16" y="-54" width="40" height="28" rx="12" fill="#fff" stroke="#b8892b" stroke-width="2"/><text x="36" y="-34" text-anchor="middle" font-size="16">💬</text></g></g>`;
   }
   return h+'</svg>';
@@ -1090,7 +1090,7 @@ let FREE=[],freeSel=null,fseq=1;
 try{const sv=JSON.parse(localStorage.getItem('moot_free')||'null');if(sv&&Array.isArray(sv.c)){FREE=sv.c;fseq=sv.n||FREE.length+1}}catch(e){}
 function saveFree(){try{localStorage.setItem('moot_free',JSON.stringify({c:FREE,n:fseq}))}catch(e){};try{saveScene()}catch(e){}}
 const escH=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function regFree(){FREE.forEach(f=>{const r=RT[f.r]||RT.other;NODE[f.id]={ic:r.ic,c:r.c,l:f.name||r.l,robe:r.robe,info:`บทบาท: ${r.l}`}})}
+function regFree(){FREE.forEach(f=>{const r=RT[f.r]||RT.other;NODE[f.id]={ic:r.ic,c:r.c,l:f.name||r.l,robe:r.robe,img:f.img||null,cam:!!f.cam,info:`บทบาท: ${r.l}`}})}
 function addFree(name,role,x,y,say){const id='f'+(fseq++);FREE.push({id,name:name||RT[role].l,r:role,x:x??500,y:y??520,say:say||''});saveFree();return id}
 function preset(){FREE=[];fseq=1;
   [['judge','ผู้พิพากษา',500,128],['clerk','เจ้าหน้าที่หน้าบัลลังก์',500,238],['pl','ทนายโจทก์',205,352],['p','โจทก์',312,352],['dl','ทนายจำเลย',688,352],['d','จำเลย',795,352],['w','พยานโจทก์',330,648],['w','พยานจำเลย',670,648]]
@@ -1102,6 +1102,7 @@ function renderFree(){
   $('#court').innerHTML=svgCourt({use:ids,labels,pos,sideP:'โจทก์',sideD:'จำเลย',detained:FREE.some(f=>f.r==='dc'),strong:false,bg:fBg,props:PROPS_ON});
   S3.o.free=true;S3.o.labels=Object.fromEntries(FREE.map(f=>[f.id,f.name]));
   const svg=$('#court svg');
+  svg.querySelectorAll('video.camv').forEach(v=>{if(camStream){v.srcObject=camStream;v.play().catch(()=>{})}});
   // speech bubbles
   FREE.forEach(f=>{if(!f.say)return;const t=f.say.length>38?f.say.slice(0,37)+'…':f.say,w=Math.min(420,t.length*8.2+24);
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','fbub');g.dataset.k=f.id;
@@ -1146,11 +1147,13 @@ function drawFreeSide(){
   <div class="row" style="gap:6px"><input id="fName" placeholder="ชื่อตัวละคร เช่น นายเอ" maxlength="30" style="flex:1 1 160px;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:9px">
    <select id="fRole">${roleOpts('w')}</select><button class="b primary" id="fAdd">➕ เพิ่ม</button></div>
   <div class="row" style="gap:6px;margin-top:8px"><button class="b" id="fPreset">🏛 ตั้งฉากตัวอย่าง</button><button class="b" id="fClear">🗑 ล้างทั้งหมด</button></div>
+  ${FREE.some(f=>f.cam)&&!camStream?'<p class="note" style="margin:8px 0">📷 มีตัวละครที่ใช้กล้อง <button class="b" id="fCamOn">เปิดกล้องอีกครั้ง</button></p>':''}
   <h3>ตัวละครในห้อง (${th(FREE.length)})</h3>
   <ul class="flist">${FREE.map(f=>{const r=RT[f.r]||RT.other;return `<li class="${f.id===freeSel?'on':''}" data-k="${f.id}"><span class="fav" style="background:${r.c}">${r.ic}</span><span class="fnm"><b>${escH(f.name)}</b><small>${r.l}${f.say?' · 💬 '+escH(f.say):''}</small></span><button class="b fed" data-k="${f.id}">แก้ไข</button></li>`}).join('')||'<li class="muted">ยังไม่มีตัวละคร — พิมพ์ชื่อแล้วกด “เพิ่ม” หรือกด “ตั้งฉากตัวอย่าง”</li>'}</ul>${renderPropsPanel()}`;
   bindPropsPanel();
   const add=()=>{const n=$('#fName').value.trim(),r=$('#fRole').value;const id=addFree(n||RT[r].l,r);freeSel=id;sfx('ok');renderFree();setTimeout(()=>{const i=$('#fName');i&&i.focus()},0)};
   $('#fAdd').onclick=add;$('#fName').onkeydown=e=>{if(e.key==='Enter')add()};
+  if($('#fCamOn'))$('#fCamOn').onclick=()=>startCam().then(renderFree).catch(e=>flash('เปิดกล้องไม่ได้: '+e.message));
   $('#fPreset').onclick=()=>{presetScene(fBg);saveScene();freeSel=null;renderFree()};
   $('#fClear').onclick=()=>{FREE=[];fseq=1;PROPS_ON=[];pseq=1;saveScene();freeSel=null;renderFree()};
   $('#side').querySelectorAll('.fed').forEach(b=>b.onclick=()=>editFree(b.dataset.k));
@@ -1161,12 +1164,18 @@ function editFree(id){
   openPop(`<h2>แก้ไขตัวละคร</h2>
    <label class="muted">ชื่อ</label><input id="eName" value="${escH(f.name)}" maxlength="30" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:9px;margin:4px 0 10px">
    <label class="muted">บทบาท</label><select id="eRole" style="width:100%;margin:4px 0 10px">${roleOpts(f.r)}</select>
+   <label class="muted">รูปตัวละคร</label>
+   <div class="row" style="gap:6px;margin:4px 0 10px;align-items:center"><span id="ePv" class="fav" style="width:46px;height:46px;border-radius:50%;overflow:hidden;background:${(RT[f.r]||RT.other).c};display:grid;place-items:center;font-size:1.3rem">${f.cam?'📷':f.img?`<img src="${f.img}" style="width:100%;height:100%;object-fit:cover">`:(RT[f.r]||RT.other).ic}</span>
+    <label class="b" style="cursor:pointer">🖼 เลือกรูป<input type="file" accept="image/*" id="eImg" hidden></label><button class="b" id="eCam">📷 กล้องเครื่องนี้</button><button class="b" id="eNoImg">ใช้ไอคอน</button></div>
    <label class="muted">คำพูด (ขึ้นเป็นกรอบคำพูดเหนือตัวละคร เว้นว่างได้)</label><input id="eSay" value="${escH(f.say||'')}" maxlength="80" placeholder="เช่น คัดค้านครับ ถามนำ" style="width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:9px;margin:4px 0 10px">
    <div class="row" style="justify-content:space-between"><button class="b" id="eDel" style="color:var(--bad)">🗑 ลบตัวละคร</button><button class="b primary" id="eSave">บันทึก</button></div>`);
   $('#popClose').parentElement.style.display='none';
   const close=()=>{$('#popClose').parentElement.style.display='';closePop()};
   $('#eSave').onclick=()=>{f.name=$('#eName').value.trim()||RT[$('#eRole').value].l;f.r=$('#eRole').value;f.say=$('#eSay').value.trim();saveFree();close();renderFree();if(f.say)speak([{w:f.r==='judge'?'judge':'note',t:f.name+'. '+f.say}])};
   $('#eDel').onclick=()=>{FREE=FREE.filter(z=>z.id!==id);freeSel=null;saveFree();close();renderFree()};
+  $('#eImg').onchange=e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=180;const g=c.getContext('2d');const m=Math.min(im.width,im.height);g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,180,180);f.img=c.toDataURL('image/jpeg',.82);f.cam=false;saveFree();$('#ePv').innerHTML=`<img src="${f.img}" style="width:100%;height:100%;object-fit:cover">`;renderFree()};im.src=rd.result};rd.readAsDataURL(file)};
+  $('#eCam').onclick=()=>startCam().then(()=>{f.cam=true;f.img=null;saveFree();$('#ePv').textContent='📷';renderFree()}).catch(e=>flash('เปิดกล้องไม่ได้ — ต้องเปิดผ่าน https และอนุญาตกล้อง ('+e.name+')'));
+  $('#eNoImg').onclick=()=>{f.img=null;f.cam=false;saveFree();$('#ePv').textContent=(RT[f.r]||RT.other).ic;renderFree()};
   $('#eName').focus();
 }
 
@@ -1335,6 +1344,35 @@ function renderDocOv(){
   A.push({x,y,t:''});ANN[key]=A;const i=A.length-1;
   const el=document.createElement('div');el.className='ann';el.contentEditable='true';el.style.left=(x/595*100)+'%';el.style.top=(y/842*100)+'%';fp.appendChild(el);el.focus();
   el.onclick=ev=>ev.stopPropagation();el.onblur=()=>{commit(el,i);renderDocOv()};el.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();el.blur()}}};
+}
+
+/* ================= กล้อง & ภาพฉากสำหรับ Zoom ================= */
+let camStream=null;
+async function startCam(){if(camStream)return camStream;camStream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:320},height:{ideal:320},facingMode:'user'},audio:false});return camStream}
+async function zoomImage(frames,names){
+ const src=$('#court svg');if(!src)throw new Error('ไม่มีฉาก');
+ const svg=src.cloneNode(true);svg.setAttribute('xmlns','http://www.w3.org/2000/svg');svg.setAttribute('width','1000');svg.setAttribute('height','712');
+ const NS='http://www.w3.org/2000/svg',spots=[],tr=e=>{const m=(e.getAttribute('style')||'').match(/translate\(\s*([-\d.]+)px,\s*([-\d.]+)px\)/);return m?[+m[1],+m[2]]:null};
+ svg.querySelectorAll('.node').forEach(g=>{g.querySelectorAll('.bub,.ring').forEach(e=>e.remove());const t=[...g.querySelectorAll('text')].pop();const p=tr(g);if(p)spots.push([p[0],p[1],t?t.textContent:'']);g.remove()});
+ svg.querySelectorAll('.fbub,foreignObject').forEach(e=>e.remove());
+ svg.querySelectorAll('[style*="translate"]').forEach(e=>{const p=tr(e);if(p){e.setAttribute('transform',`translate(${p[0]} ${p[1]})`);e.removeAttribute('style')}});
+ if(frames)spots.forEach(([x,y,l])=>{const g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${x} ${y})`);
+   g.innerHTML=`<rect x="-46" y="-36" width="92" height="64" rx="9" fill="rgba(255,255,255,.35)" stroke="#2b2b2b" stroke-width="2.5" stroke-dasharray="9 6"/>`+(names&&l?`<rect x="${-(l.length*7+20)/2}" y="34" width="${l.length*7+20}" height="22" rx="11" fill="#fff" opacity=".92"/><text y="50" text-anchor="middle" font-size="14" font-weight="700" fill="#222" font-family="Sarabun,Tahoma,sans-serif">${escH(l)}</text>`:'');svg.appendChild(g)});
+ const xml=new XMLSerializer().serializeToString(svg);
+ const img=new Image();img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);await img.decode();
+ const c=document.createElement('canvas');c.width=1920;c.height=1080;const g=c.getContext('2d');
+ const k=1080/712,w=1000*k,x0=(1920-w)/2;g.fillStyle='#2a2f3a';g.fillRect(0,0,1920,1080);
+ g.save();g.filter='blur(30px) brightness(.8)';g.drawImage(img,-80,-60,2080,1200);g.restore();
+ g.drawImage(img,x0,0,w,1080);return c.toDataURL('image/png');
+}
+async function openZoomPop(){
+ openPop(`<h2>📸 ภาพฉากสำหรับ Zoom (Immersive View)</h2>
+  <div class="row" style="gap:12px"><label><input type="checkbox" id="zF" checked> กรอบตำแหน่งตัวละคร</label><label><input type="checkbox" id="zN" checked> ชื่อบทบาทใต้กรอบ</label></div>
+  <img id="zPrev" alt="ตัวอย่างภาพฉาก" style="width:100%;border-radius:8px;margin:8px 0;background:#eee;min-height:120px">
+  <a class="b primary" id="zDl" download="ฉากศาลจำลอง-zoom.png" style="display:inline-block;text-decoration:none">⬇️ ดาวน์โหลด PNG 1920×1080</a>
+  <ol class="muted" style="margin:10px 0 0;padding-left:1.2em;font-size:.88rem"><li>จัดฉากในแอปก่อน (ตำแหน่งตัวละคร = ตำแหน่งกรอบ) แล้วดาวน์โหลดภาพ</li><li>ใน Zoom (เป็น host) เปิดเมนู <b>มุมมอง / View</b> มุมขวาบน → <b>Immersive View</b> → เพิ่มภาพของเราเอง แล้วเลือกไฟล์นี้</li><li>ลากวิดีโอนักศึกษาไปวางในกรอบตามบทบาท — ผู้พิพากษา ทนาย พยาน</li><li>ถ้าเลือกวางเองไม่ได้ หรือวางได้ไม่ครบทุกคน ให้ตรวจการตั้งค่าและจำนวนผู้เข้าร่วมของบัญชี Zoom</li></ol>`,true);
+ const upd=async()=>{try{const u=await zoomImage($('#zF').checked,$('#zN').checked);$('#zPrev').src=u;$('#zDl').href=u}catch(e){$('#zPrev').alt='สร้างภาพไม่ได้: '+e.message}};
+ $('#zF').onchange=upd;$('#zN').onchange=upd;upd();
 }
 
 /* ================= LOBBY (หาห้องพิจารณา / บัญชีนัดความ) ================= */
