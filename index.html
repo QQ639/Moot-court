@@ -1256,12 +1256,12 @@ function renderSim(full){{const og=document.getElementById('objGuide');if(og)og.
   const n=st.w==='all'?{ic:'🧍',c:'#b8892b'}:NODE[st.w];
   $('#side').innerHTML=`<div class="chips top">${cur.steps.map((s,i)=>`<span class="${i===idx?'cur':i<idx?'done':''} ${s.ex?'ex':''} ${s.o?'ob':''}" data-i="${i}">${th(i+1)}</span>`).join('')}</div><div class="muted">${cur.title} · ขั้นที่ ${th(idx+1)}/${th(cur.steps.length)}</div>
    <div class="who"><div class="av" style="background:${n.c}">${n.ic}</div><b>${st.w==='all'?'ทุกคนในห้องพิจารณา':lb(st.w)}</b></div>
-   ${stageBar(st.g)}${st.o?`<span class="objb">⚠ ${st.o}</span> <span class="docbtn" onclick="$('#objGuide').open=true;$('#objGuide').scrollIntoView({behavior:'smooth'})">⚖️ คู่มือการคัดค้าน</span>`:''}<div class="say">${st.s}</div>${st.a?`<div class="act">▸ ${st.a}</div>`:''}${st.ex?exMini(EX[st.ex]):''}${st.doc?st.doc.map(d=>`<span class="docbtn" data-doc="${d}">📄 ตัวอย่าง: ${DOCLIB[d].n}</span>`).join(''):''}
+   ${stageBar(st.g)}${st.o?`<span class="objb">⚠ ${st.o}</span> <span class="docbtn" onclick="$('#objGuide').open=true;$('#objGuide').scrollIntoView({behavior:'smooth'})">⚖️ คู่มือการคัดค้าน</span>`:''}<div class="say">${st.s}</div>${st.a?`<div class="act">▸ ${st.a}</div>`:''}${st.ex?exMini(EX[st.ex]):''}${st.doc?st.doc.filter(d=>DOCLIB[d]).map(d=>`<span class="docbtn" data-doc="${d}">📄 ${DOCLIB[d].n.replace(/^วันที่ \S+ /,'')}</span>`).join(''):''}
    ${st.n||st.l?`<div class="note">${st.n?'📘 '+st.n:''}${st.l?`<br><span class="law">${st.l}</span>`:''}</div>`:''}
 `;
   $('#side').querySelectorAll('.chips span').forEach(s=>s.onclick=()=>{idx=+s.dataset.i;renderSim()});
   const g=$('#side .golab');if(g)g.onclick=()=>gotoLab(g.dataset.lab);
-  $('#side').querySelectorAll('.docbtn[data-doc]').forEach(b=>b.onclick=()=>gotoDoc(b.dataset.doc));
+  $('#side').querySelectorAll('.docbtn[data-doc]').forEach(b=>b.onclick=()=>openDocOv(b.dataset.doc));
   $('#prev').disabled=idx===0;$('#next').disabled=idx===cur.steps.length-1;
   speakStep();
   const ms=$('#mstep');if(ms)ms.textContent=th(idx+1)+'/'+th(cur.steps.length);
@@ -1305,7 +1305,7 @@ function drawLessons(){
 function setLesson(v){
   lessonKey=v;const [m,id]=v.split(':');mode=m;stopAuto();try{speechSynthesis.cancel()}catch(e){}
   if(m==='free'){const bg=SCBG[id]||id==='court'?id:'court';if(bg!==fBg){saveScene();loadScene(bg);saveScene()}}else if(m==='seat'){seatType=id;$('#seatType').value=id;tipSel=-1}else{cur=SCN.find(s=>s.id===id);idx=0;$('#scn').value=id}
-  if(m==='lobby')lidx=0;$('#simBar').style.display=(m==='sim'||m==='lobby')?'block':'none';drawLessons();renderCourt();
+  if(m==='lobby')lidx=0;$('#simBar').style.display=(m==='sim'||m==='lobby')?'block':'none';drawLessons();renderCourt();renderFormBox();if(ovId&&m==='sim')closeDocOv();
   $('#lessonBox').open=false;$('#courtroom').scrollIntoView({block:'start'});
 }
 drawLessons();
@@ -1555,7 +1555,14 @@ const saveAnn=()=>{try{localStorage.setItem('moot_ann',JSON.stringify(ANN))}catc
 function docGroups(){
  const G={};Object.entries(DOCLIB).forEach(([k,d])=>{const g=d.set?`${KCASE[d.kt].t} · ${d.n.split(' · ')[0]}`:d.g;(G[g]=G[g]||[]).push([k,d.set?d.n.split(' · ')[1]:d.n])});return G}
 let formGrp=null;
+function dayDocs(){if(mode!=='sim'||!cur)return null;const L=[];cur.steps.forEach(st=>(st.doc||[]).forEach(d=>{if(DOCLIB[d]&&!L.includes(d))L.push(d)}));return L}
 function renderFormBox(){
+ const DD=dayDocs();
+ if(DD){$('#formBody').innerHTML=`<p class="muted" style="margin:6px 0">เอกสารที่ใช้ในวันนี้ — <b>${escH(cur.title)}</b></p>
+  ${DD.length?`<div class="lbtns">${DD.map((k,i)=>`<button data-d="${k}" class="${k===ovId?'on':''}">${th(i+1)}. ${escH(DOCLIB[k].n.replace(/^วันที่ \S+ /,''))}</button>`).join('')}</div>`:'<p class="muted" style="margin:4px 0">วันนี้ไม่มีเอกสารที่ต้องยื่น</p>'}
+  <div class="row" style="gap:5px;margin-top:8px"><button class="b" onclick="openDocOv('N1')">📄 กระดาษเปล่า (โน้ตเวลาสอน)</button></div>
+  <p class="muted" style="margin:6px 0 0">แตะชื่อเอกสาร → เปิด<b>ทับฉาก</b> · กด ✍️ แล้วแตะบนเอกสารเพื่อพิมพ์อธิบายเพิ่ม</p>`;
+  $('#formBody').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>openDocOv(b.dataset.d));return}
  const G=docGroups(),gs=Object.keys(G);if(!formGrp||!G[formGrp])formGrp=gs.find(g=>g.includes('ชุด ๑'))||gs[0];
  $('#formBody').innerHTML=`<div class="row" style="gap:5px;margin-top:6px"><button class="b" onclick="openDocOv('N3')">📝 แบบบันทึกเอกสารที่ต้องจัดทำ</button><button class="b" onclick="openDocOv('N1')">📄 กระดาษเปล่า</button><button class="b" onclick="openDocOv('N2')">📃 กระดาษมีเส้น</button></div>
   <select id="formGrp" style="width:100%;margin:6px 0">${gs.map(g=>`<option ${g===formGrp?'selected':''}>${g}</option>`).join('')}</select>
