@@ -38,17 +38,19 @@ h3{font-size:1rem;margin:14px 0 6px}
 /* courtroom */
 #court{padding:8px}
 #court svg{width:100%;height:auto;display:block;border-radius:12px}
-.node{cursor:pointer;transition:transform .9s cubic-bezier(.5,0,.3,1),opacity .4s}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+body.still *,body.still *::before,body.still *::after{animation:none!important;transition:none!important}
+.node{cursor:pointer;transition:transform .4s ease-out,opacity .25s}
 .node.dim{opacity:.33}
 .node .ring{fill:var(--gold);stroke:#fff;stroke-width:1.5;opacity:0;pointer-events:none}
-.node.act .ring{opacity:1;animation:cur4 1s ease-in-out infinite}
+.node.act .ring{opacity:1;transform:scale(1.12)}
 @keyframes cur4{0%,100%{transform:scale(1.18)}50%{transform:scale(.96)}}
 @keyframes pulse{0%{r:27;opacity:1}100%{r:44;opacity:0}}
 .node.act .disc{stroke:var(--gold);stroke-width:4}
 .node .bub{opacity:0;transition:opacity .3s}
 .node.act.talk .bub{opacity:1}
 .zone{transition:opacity .4s}
-.zone.hi{opacity:.5!important;animation:zp 1.2s infinite alternate}
+.zone.hi{opacity:.4!important}
 @keyframes zp{to{opacity:.25}}
 .mk{transition:opacity .4s}
 .mk.hi rect{stroke:var(--gold);stroke-width:5}
@@ -172,9 +174,10 @@ details#lessonBox summary::-webkit-details-marker{display:none}
 .hp .xb{position:absolute;right:6%;top:4%;border:2px solid var(--blue);color:var(--blue);font-weight:700;padding:.3em .7em;border-radius:4px}
 .hp .cert{position:absolute;right:8%;bottom:9%;transform:rotate(-5deg);border:2px solid var(--blue);color:var(--blue);font-weight:700;padding:.3em .8em;text-align:center;border-radius:4px}
 .hp .wm{position:absolute;left:0;right:0;top:45%;text-align:center;font-size:5em;color:rgba(0,0,0,.05);transform:rotate(-20deg);font-weight:700}
+.hp .sumt{font-size:.74em;margin-top:2%}.hp .sumt td,.hp .sumt th{padding:.22em .4em;line-height:1.38}.hp .sumt .sd td{background:#efe6d2;font-weight:700;color:#5a3d12}.hp .sumt .c{text-align:center}.hp .sumt .sa{color:#8a5300}.hp .sumt .sl{color:#1d4e9e}.hp .sumt .sdoc{color:#2a7d4f}.hp .sumpg{position:absolute;bottom:3%;right:8%;font-size:.78em;color:#777}
 .hp .ht{width:100%;border-collapse:collapse;margin-top:3%;font-size:.92em}.hp .ht td,.hp .ht th{border:1px solid #888;padding:.35em .5em;vertical-align:top}.hp .ht th{background:#f0f0f0}
 .kit{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:8px}.kit td,.kit th{border-bottom:1px solid var(--line);padding:6px 5px;vertical-align:top;text-align:left}.kit th{background:#f3ece0}
-.lh{opacity:0;transition:opacity .4s;animation:zp 1s infinite alternate}
+.lh{opacity:0;transition:opacity .4s}
 .daylist tr.pick{cursor:pointer}.daylist tr.pick:hover td{background:#fffaf0}.daylist tr.okr td{background:#e7f4ec}.daylist tr.bad td{background:#fbeaea}
 .daylist td,.daylist th{white-space:nowrap}
 .golab{display:inline-block;margin-top:8px;font-weight:600;color:var(--blue);cursor:pointer;text-decoration:underline}
@@ -210,7 +213,7 @@ details#lessonBox summary::-webkit-details-marker{display:none}
 .paper p{margin:.3em 0}
 .lz{position:absolute;border:2px dashed transparent;border-radius:4px;pointer-events:none;font-size:.8em;color:transparent;padding:2px 4px;line-height:1.2}
 .showz .lz{border-color:#2e7d4f;background:rgba(46,125,79,.08);color:#2e7d4f}
-.nexthint .lz.nx{border-color:var(--gold);background:rgba(184,137,43,.12);color:#7a5b17;animation:zp 1s infinite alternate}
+.nexthint .lz.nx{border-color:var(--gold);background:rgba(184,137,43,.12);color:#7a5b17}
 .formbox{position:absolute;border:1px solid #999;border-radius:2px;font-size:.78em;color:#888;padding:2px 4px}
 .stamp{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,-4deg));pointer-events:none;animation:thump .35s ease-out;font-size:.9em;line-height:1.3;text-align:center;white-space:nowrap}
 .stamp.bad{opacity:.55}
@@ -340,12 +343,37 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
  body.printing #docOv .ovbar,body.printing #docOv .ovtip,body.printing .pin{display:none!important}
  body.printing #docOv .ovpage{width:210mm!important;height:297mm!important;box-shadow:none!important;outline:none!important;margin:0!important}
  body.printing .nbx:empty::before{content:''}}
+
+/* ===== จอใหญ่: หัวเล็ก · หน้าไม่เลื่อนทั้งหน้า · ภาพซ้ายอยู่นิ่ง · เลื่อนเฉพาะคอลัมน์ขวา ===== */
+@media(min-width:921px){
+ html,body{height:100%}
+ body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+ header{flex:none;padding:3px 12px;gap:8px;flex-wrap:nowrap}
+ header h1{font-size:.95rem;white-space:nowrap}header h1 small{display:none}
+ .hbtns{gap:4px;flex-wrap:nowrap}.hbtns button{padding:2px 8px;font-size:.72rem;border-radius:6px}
+ nav{flex:none;padding:0 10px}nav a{padding:4px 12px;font-size:.88rem;border-bottom-width:2px}
+ main{flex:1 1 auto;min-height:0;width:100%;box-sizing:border-box;overflow-y:auto;padding:10px 14px}
+ footer{flex:none;width:100%;max-width:none;box-sizing:border-box;padding:2px 14px;font-size:.68rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ /* หน้าที่มีภาพซ้าย-ข้อความขวา: ทั้งหน้าไม่เลื่อน */
+ main:has(>#courtroom.on),main:has(>#docs.on){overflow:hidden}
+ #courtroom.on,#docs.on{height:100%}
+ #courtroom>.split,#docs>.split{height:100%;align-items:stretch}
+ #courtroom>.split>.pic,#docs>.split>.pic{position:relative;top:auto;height:100%;overflow:hidden}
+ #courtroom>.split>.txt,#docs>.split>.txt{height:100%;overflow-y:auto;overscroll-behavior:contain;padding-right:6px}
+ #courtroom>.split>.pic{display:flex;flex-direction:column}
+ #courtroom>.split>.pic>*{flex:none}
+ #courtroom>.split>.pic>#court{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+ #court>svg{width:100%;height:100%;max-height:none!important}
+ #courtroom>.split>.pic>#court3d{flex:1 1 auto;min-height:0}
+ #docs .fpage{max-width:calc((100vh - 185px)*595/842)}
+ .docov{max-height:100%}
+}
 </style>
 </head>
 <body>
 <header>
   <h1>⚖️ ศาลจำลองออนไลน์ <small>จัดทำโดย ทนายคิว · สื่อการสอนวิชาว่าความ — ผังที่นั่ง · การพิจารณาในห้อง · การหมายเอกสาร จ./ล./ร. · การยื่นและประทับตรา</small></h1>
-  <div class="hbtns"><button id="bigBtn">🔍 โหมดบรรยาย (ตัวใหญ่)</button><button id="fsBtn">⛶ เต็มจอ</button><button id="sndBtn">🔇 เสียง: ปิด</button></div>
+  <div class="hbtns"><button id="bigBtn">🔍 โหมดบรรยาย (ตัวใหญ่)</button><button id="stillBtn">🧘 ลดการเคลื่อนไหว: ปิด</button><button id="fsBtn">⛶ เต็มจอ</button><button id="sndBtn">🔇 เสียง: ปิด</button></div>
 </header>
 <nav>
   <a href="#courtroom" data-t="courtroom">① ห้องพิจารณาคดี</a>
@@ -379,7 +407,7 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
     <div class="card ctrl" id="simBar" style="display:none">
       <div class="row">
         <button class="b" id="prev">◀ ย้อน</button><button class="b primary" id="next">ถัดไป ▶</button>
-        <button class="b" id="auto">▶︎ อัตโนมัติ</button><button class="b" id="restart">↺</button>
+        <button class="b" id="auto">▶︎ อัตโนมัติ</button><button class="b" id="restart">↺</button><button class="b" id="sumBtn" onclick="openSum()" title="เปิดสรุปรายการทั้งคดีทับฉาก — เปิดที่หน้าของวันนี้">📋 สรุปทั้งคดี</button>
         <label class="muted" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="readNote"> อ่าน 📘 ด้วยเสียง</label>
       </div>
       <div class="muted" style="margin-top:4px">คีย์บอร์ด <kbd>←</kbd> <kbd>→</kbd> · คลิกบุคคลในภาพเพื่อดูบทบาท · <b style="color:var(--red)">วงแดง</b> บนเลขขั้น = มีการหมายเอกสาร</div>
@@ -481,6 +509,7 @@ const now=new Date();
 const thDate=th(now.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'}));
 const thTime=th(now.toTimeString().slice(0,5).replace(':','.'));
 const $=s=>document.querySelector(s);
+function softScroll(el){if(!el)return;const r=el.getBoundingClientRect();if(r.top<-4||r.top>innerHeight*.35)el.scrollIntoView({block:'start'})}
 function openPop(h,wide){$('#popBody').innerHTML=h;$('#pop .card').classList.toggle('wide',!!wide);$('#pop').classList.add('on')}
 function closePop(){$('#pop').classList.remove('on')}
 $('#popClose').onclick=closePop;$('#pop').onclick=e=>{if(e.target.id==='pop')closePop()};
@@ -492,6 +521,7 @@ function route(){
   if(id!=='courtroom'){stopAuto();try{speechSynthesis.cancel()}catch(e){}}
 }
 addEventListener('hashchange',route);
+(function(){const b=$('#stillBtn'),set=v=>{document.body.classList.toggle('still',v);b.textContent='🧘 ลดการเคลื่อนไหว: '+(v?'เปิด':'ปิด');try{localStorage.setItem('moot_still',v?'1':'')}catch(e){}};let v=false;try{v=localStorage.getItem('moot_still')==='1'}catch(e){};set(v);b.onclick=()=>set(!document.body.classList.contains('still'))})();
 $('#bigBtn').onclick=()=>document.body.classList.toggle('big');
 $('#fsBtn').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
 
@@ -619,7 +649,7 @@ function build3D(){
   new ResizeObserver(resize3D).observe(host);resize3D();setCam('aud',true);
   const clock=new THREE.Clock();
   (function loop(){requestAnimationFrame(loop);if(!V3.on)return;const t=clock.getElapsedTime();
-    for(const id in V3.people){const p=V3.people[id];p.g.position.lerp(p.tgt,.09);
+    for(const id in V3.people){const p=V3.people[id];p.g.position.lerp(p.tgt,document.body.classList.contains('still')?1:.09);
       p.g.visible=id!==V3.hideId;
       const act=p.act;p.lbl.position.y=1.42+p.base+(act?Math.sin(t*5)*.04:0);
       const bob=act&&S3.talk?Math.abs(Math.sin(t*6))*.05:0;p.body.position.y=.38+p.base+bob;p.head.position.y=.86+p.base+bob}
@@ -1018,7 +1048,7 @@ const SCN=[
  {w:'pl',s:'ขอยื่นฟ้องคดีอาญา ราษฎรเป็นโจทก์ ข้อหายักยอกทรัพย์ครับ',mv:{pl:[252,330],p:[330,345]},a:'① งานรับฟ้องอาญา'},
  {w:'eS1',s:'ตรวจแล้วครบ คดีหมายเลขดำที่ อ.๙๐๑/๒๕๖๙ นัดไต่สวนมูลฟ้องวันที่ ๑๕ พฤษภาคม ๒๕๖๙ เวลา ๐๙.๐๐ นาฬิกา ทนายสะดวกไหมคะ',n:'ทนายลงเลขคดีและวันนัดในเอกสารทุกฉบับ ทั้ง ๓ ชุด — ปั๊ม “คำสั่งศาล / นัดวันที่” ใต้คำว่า “คำฟ้อง” และตรารับทราบคำสั่งท้ายกระดาษซ้าย'},
  {w:'pl',s:'สะดวกครับ (ลงเลขคดี วันนัด และลงชื่อทราบคำสั่ง)',doc:['YA1']},
- {w:'eS2',s:'คดีอาญาราษฎรฟ้องไม่มีค่าขึ้นศาล ชำระเฉพาะค่าส่งหมายนัดและสำเนาฟ้องให้จำเลยค่ะ',mv:{pl:[416,330],p:[494,345]},a:'② การเงิน',doc:['YA7'],n:'ถ้าฟ้องคดีส่วนแพ่งรวมมา (ขอให้คืนรถหรือใช้ราคา) ต้องตรวจค่าธรรมเนียมส่วนแพ่งด้วย',l:'ป.วิ.อ. ม.๔๐'},
+ {w:'eS2',s:'คดีอาญาราษฎรฟ้องไม่มีค่าขึ้นศาล ชำระเฉพาะค่าส่งหมายนัดและสำเนาฟ้องให้จำเลยค่ะ',mv:{pl:[416,330],p:[494,345]},a:'② การเงิน',doc:['YA7'],n:'คดีนี้มีคำขอส่วนแพ่ง (ขอให้คืนรถหรือใช้ราคา) — ค่าธรรมเนียมส่วนแพ่งชำระเมื่อศาลสั่งประทับฟ้อง พร้อมค่าส่งหมายนัดจำเลย (วันที่ ⑥) — จดไว้อย่าลืม',l:'ป.วิ.อ. ม.๔๐'},
  {w:'pl',s:'นำใบเสร็จกลับมาคืนช่องรับฟ้องครับ',mv:{pl:[252,330],p:[330,345]},a:'③ คืนใบเสร็จ'},
  {w:'eS1',s:'รับแล้ว สำนวนจะเสนอผู้พิพากษาสั่ง ชุดส่งจำเลยส่งต่องานหมายนะคะ ๑–๒ วันโทรตามคำสั่งด้วย',n:'ชุด ๒ (หมายนัด + สำเนาฟ้อง) ไปงานหมาย · ชุด ๓ กลับสำนักงาน · <b>โทรตามคำสั่ง</b> เผื่อศาลสั่งให้แก้ฟ้อง (ป.วิ.อ. ม.๑๖๑)'},
  {w:'eMail',s:'รับชุดส่งจำเลยไว้แล้ว เจ้าหน้าที่จะนำหมายไปส่งตามที่อยู่ในฟ้องค่ะ',pm:{kit:[580,280]},a:'④ งานหมาย'}
@@ -1056,17 +1086,17 @@ const SCN=[
  {w:'judge',s:'เสร็จการไต่สวนมูลฟ้อง นัดฟังคำสั่งหรือคำพิพากษาวันที่ ๒๖ มิถุนายน ๒๕๖๙ เวลา ๐๙.๐๐ นาฬิกา',n:'ผลที่เป็นไปได้: <b>คดีมีมูล</b> → สั่งประทับฟ้อง (เป็นคำสั่ง) · <b>คดีไม่มีมูล</b> → พิพากษายกฟ้อง (เป็นคำพิพากษา) จึงนัดฟัง “คำสั่งหรือคำพิพากษา”',l:'ป.วิ.อ. ม.๑๖๗'},
  {w:'all',s:'(ลงชื่อในรายงานกระบวนพิจารณา ทุกคนลุกขึ้นทำความเคารพ)'}
  ]},
-{id:'em6',title:'ยักยอก ⑥ วันฟังคำสั่ง — ประทับฟ้อง · จำเลยไม่มา · ส่งหมายนัด · การเงิน › คืนใบเสร็จหน้าบัลลังก์',sideP:'โจทก์',sideD:'จำเลย',use:['judge','clerk','pl','eS2'],labels:{},
+{id:'em6',title:'ยักยอก ⑥ วันฟังคำสั่ง — ประทับฟ้อง · จำเลยไม่มา · ส่งหมายนัด · การเงิน (ค่าส่งหมาย + ค่าธรรมเนียมส่วนแพ่ง) › คืนใบเสร็จหน้าบัลลังก์',sideP:'โจทก์',sideD:'จำเลย',use:['judge','clerk','pl','eS2'],labels:{},
  chars:{eS2:{ic:'🧑‍💻',c:'#2a7d4f',l:'การเงิน',info:'รับชำระค่าธรรมเนียม ค่าส่งหมาย และเงินประกัน ออกใบเสร็จ'}},
  start:{eS2:'x'},
  steps:[
  {w:'clerk',s:'(๒๖ มิถุนายน ๒๕๖๙) คดีหมายเลขดำที่ อ.๙๐๑/๒๕๖๙ นัดฟังคำสั่ง ทนายโจทก์มา จำเลยและทนายจำเลยไม่มาค่ะ'},
  {w:'judge',s:'ศาลไต่สวนแล้ว คดีมีมูล ให้ประทับฟ้องไว้พิจารณา',n:'คำสั่งว่าคดีมีมูล<b>เป็นที่สุด</b> จำเลยอุทธรณ์ไม่ได้ — ตั้งแต่นี้ผู้ถูกฟ้องมีฐานะเป็น<b>จำเลย</b>',l:'ป.วิ.อ. ม.๑๖๗ · ม.๑๗๐'},
- {w:'judge',s:'จำเลยไม่มาศาล ให้ออกหมายนัดจำเลยมาให้การวันที่ ๒๔ กรกฎาคม ๒๕๖๙ เวลา ๐๙.๐๐ นาฬิกา ให้โจทก์นำส่งหมายและวางค่าส่งหมายภายใน ๗ วัน',n:'คดีอาญาต้องพิจารณาต่อหน้าจำเลย — ถ้าจำเลยไม่มาตามหมาย ศาลอาจออก<b>หมายจับ</b>',l:'ป.วิ.อ. ม.๑๗๒'},
+ {w:'judge',s:'จำเลยไม่มาศาล ให้ออกหมายนัดจำเลยมาให้การวันที่ ๒๔ กรกฎาคม ๒๕๖๙ เวลา ๐๙.๐๐ นาฬิกา ให้โจทก์นำส่งหมายและวางค่าส่งหมายภายใน ๗ วัน และให้โจทก์ชำระค่าธรรมเนียมในคดีส่วนแพ่งให้ครบ',n:'คดีอาญาต้องพิจารณาต่อหน้าจำเลย — ถ้าจำเลยไม่มาตามหมาย ศาลอาจออก<b>หมายจับ</b>',l:'ป.วิ.อ. ม.๑๗๒'},
  {w:'pl',s:'ทราบคำสั่งครับ จะยื่นคำร้องขอส่งหมายนัดสอบคำให้การจำเลยวันนี้',doc:['Y05'],n:'เขียนคำร้อง (แบบ ๗) ชื่อคำร้อง “คำร้องขอส่งหมายนัดจำเลย” แนบข้อมูลทะเบียนราษฎรของจำเลย — ปั๊มตรา “คำสั่งศาล” ใต้ชื่อเอกสาร'},
- {w:'pl',s:'(ไปงานการเงิน) ขอชำระค่าส่งหมายนัดจำเลยครับ',bg:'counter',mv:{pl:[416,330],eS2:[416,196],judge:'x',clerk:'x'},a:'งานการเงิน',doc:['Y05R']},
- {w:'eS2',s:'ชำระเรียบร้อย รับใบเสร็จค่ะ นำใบเสร็จไปยื่นพร้อมคำร้องที่หน้าบัลลังก์ห้องเดิมนะคะ',n:'คำร้องที่ยื่นในห้องพิจารณา — <b>ใบเสร็จต้องกลับไปที่หน้าบัลลังก์ห้องเดิม</b> ไม่ใช่ช่องรับฟ้อง'},
- {w:'pl',s:'(กลับห้องพิจารณาเดิม) ขอยื่นคำร้องขอส่งหมายนัดสอบคำให้การจำเลย พร้อมใบเสร็จค่าส่งหมายครับ',bg:'court',mv:{pl:'seat',eS2:'x',judge:'seat',clerk:'seat'},a:'คืนใบเสร็จหน้าบัลลังก์'},
+ {w:'pl',s:'(ไปงานการเงิน) ขอชำระค่าส่งหมายนัดจำเลย และค่าธรรมเนียมคดีส่วนแพ่งครับ',bg:'counter',mv:{pl:[416,330],eS2:[416,196],judge:'x',clerk:'x'},a:'งานการเงิน — ค่าส่งหมายนัด + ค่าธรรมเนียมส่วนแพ่ง',doc:['Y05R'],n:'<b>อย่าลืม!</b> ฟ้องนี้มีคำขอส่วนแพ่ง (คืนรถหรือใช้ราคา ๓๐๐,๐๐๐ บาท) — วันที่ไปชำระค่าส่งหมายนัด ให้ชำระ<b>ค่าธรรมเนียมส่วนแพ่ง</b>ตามทุนทรัพย์พร้อมกัน ถ้าไม่ชำระ ศาลอาจไม่รับคำขอส่วนแพ่ง',l:'ป.วิ.อ. ม.๔๐ · ม.๒๕๓ ประกอบตาราง ๑ ท้าย ป.วิ.พ.'},
+ {w:'eS2',s:'รับค่าส่งหมายนัด ๕๐๐ บาท และค่าธรรมเนียมส่วนแพ่ง ๖,๐๐๐ บาท รวม ๖,๕๐๐ บาท รับใบเสร็จค่ะ นำใบเสร็จไปยื่นพร้อมคำร้องที่หน้าบัลลังก์ห้องเดิมนะคะ',n:'คำร้องที่ยื่นในห้องพิจารณา — <b>ใบเสร็จต้องกลับไปที่หน้าบัลลังก์ห้องเดิม</b> ไม่ใช่ช่องรับฟ้อง'},
+ {w:'pl',s:'(กลับห้องพิจารณาเดิม) ขอยื่นคำร้องขอส่งหมายนัดสอบคำให้การจำเลย พร้อมใบเสร็จค่าส่งหมายและค่าธรรมเนียมส่วนแพ่งครับ',bg:'court',mv:{pl:'seat',eS2:'x',judge:'seat',clerk:'seat'},a:'คืนใบเสร็จหน้าบัลลังก์'},
  {w:'clerk',s:'รับไว้ เสนอศาลสั่งค่ะ'},
  {w:'judge',s:'ออกหมายนัดสอบคำให้การส่งให้จำเลย หากส่งไม่ได้ให้ปิดหมาย',n:'หมายนัดสอบคำให้การ ศาลออกเอง — ทนายโจทก์ทำเฉพาะคำร้องขอส่งหมายและวางค่าส่งหมาย',n:'จดวันนัด ๒๔ กรกฎาคม ๒๕๖๙ ลงปฏิทินคดี และติดตามผลการส่งหมาย — ถ้าส่งไม่ได้ ต้องรีบแถลงขอส่งโดยวิธีอื่น'}
  ]},
@@ -1470,14 +1500,14 @@ const SCN=[
  {w:'pl',s:'ฟ้องคดีเดียวได้ครบครับ: ฟ้องหย่าสามี ขออำนาจปกครองลูก เรียกค่าเลี้ยงดูลูก และเรียกค่าทดแทนจากทั้งสามีและผู้หญิงคนนั้น',n:'รวมฟ้องในคดีเดียว — สามีเป็น<b>จำเลยที่ ๑</b> หญิงอื่นเป็น<b>จำเลยที่ ๒</b> · ศาลเยาวชนและครอบครัวพิจารณาทุกประเด็นพร้อมกัน'},
  {w:'pl',s:'เหตุหย่าคือสามีอุปการะเลี้ยงดูหรือยกย่องหญิงอื่นฉันภริยา ส่วนผู้หญิงคนนั้นต้องรู้ว่าเขามีภริยาและแสดงตนโดยเปิดเผย',l:'ป.พ.พ. ม.๑๕๑๖ (๑) · ม.๑๕๒๓ วรรคแรก',n:'ถ้าฟ้องหญิงอื่นอย่างเดียวโดยไม่หย่า ใช้ ม.๑๕๒๓ วรรคสอง — คดีนี้ฟ้องหย่าด้วย จึงเรียกค่าทดแทนจากทั้งสองคนได้'},
  {w:'pl',s:'สิทธิฟ้องหย่าเหตุนี้หมดเมื่อพ้น ๑ ปีนับแต่รู้ คุณรู้เมื่อ ๑๐ พฤษภาคม อย่าลบภาพหรือแชท และเก็บใบเสร็จค่าใช้จ่ายลูกไว้ทั้งหมดครับ',l:'ป.พ.พ. ม.๑๕๒๙',n:'ถ้าภริยายินยอมหรือรู้เห็นเป็นใจ ฟ้องหย่าและเรียกค่าทดแทนไม่ได้ · เก็บหลักฐานพร้อม URL และวันเวลา'},
- {w:'pl',s:'ลูกอยู่กับคุณ ขอใช้อำนาจปกครองแต่ผู้เดียว และค่าเลี้ยงดูคนละ ๕,๐๐๐ บาทต่อเดือน ระหว่างคดีขอคุ้มครองชั่วคราวด้วย ศาลจะให้สถานพินิจสอบข้อเท็จจริง ต้องพาลูกไปครับ',l:'ป.พ.พ. ม.๑๕๒๐ · ม.๑๕๖๔',n:'ประเด็นบุตร ศาลยึด<b>ประโยชน์สูงสุดของเด็ก</b> — รายงานสถานพินิจมีน้ำหนักมาก'}
+ {w:'pl',s:'ลูกอยู่กับคุณ ขอใช้อำนาจปกครองแต่ผู้เดียว และค่าเลี้ยงดูคนละ ๕,๐๐๐ บาทต่อเดือน ศาลจะให้สถานพินิจสอบข้อเท็จจริง ต้องพาลูกไปครับ',l:'ป.พ.พ. ม.๑๕๒๐ · ม.๑๕๖๔',n:'ประเด็นบุตร ศาลยึด<b>ประโยชน์สูงสุดของเด็ก</b> — รายงานสถานพินิจมีน้ำหนักมาก'}
  ]},
-{id:'cf2',title:'ครอบครัว ② ยื่นฟ้องที่ศาลเยาวชนและครอบครัว + คำร้องขอคุ้มครองชั่วคราว',bg:'counter',sideP:'โจทก์',sideD:'จำเลย',use:['pl','p','cS1','eS2'],labels:{pl:'ทนายโจทก์',p:'นางสาวิตรี (ภริยา)'},
+{id:'cf2',title:'ครอบครัว ② ยื่นฟ้องที่ศาลเยาวชนและครอบครัว',bg:'counter',sideP:'โจทก์',sideD:'จำเลย',use:['pl','p','cS1','eS2'],labels:{pl:'ทนายโจทก์',p:'นางสาวิตรี (ภริยา)'},
  start:{pl:[110,560],p:[190,560],cS1:[88,196],eS2:[416,196]},
  props:[{id:'fs',k:'sign',x:600,y:330,lbl:'ศาลเยาวชนและครอบครัวจังหวัดตัวอย่าง',s:1.3},{id:'kit',k:'file',x:270,y:520,lbl:'ชุดฟ้อง ๓ ชุด'}],
  steps:[
- {doc:['F02','F03','F04','F05','F06'],w:'pl',s:'(๑ กรกฎาคม ๒๕๖๙) ขอยื่นฟ้องหย่า ค่าทดแทน อำนาจปกครองบุตร และค่าอุปการะเลี้ยงดูบุตร จำเลย ๒ คน พร้อมคำร้องขอคุ้มครองชั่วคราวครับ',mv:{pl:[88,330],p:[165,345]},pm:{kit:[200,300]},a:'งานรับฟ้อง',n:'โจทก์ลงชื่อในคำฟ้อง ทนายเป็นผู้เรียง · สำเนาคำฟ้องเท่าจำนวนจำเลย (๒ ชุด)'},
- {w:'cS1',s:'คดีหมายเลขดำที่ ยชพ.๒๒๐/๒๕๖๙ ศาลสั่งให้สถานพินิจสอบข้อเท็จจริงเกี่ยวกับบุตรทั้งสอง นัดพิจารณา ไต่สวนคุ้มครองชั่วคราว และไกล่เกลี่ย วันที่ ๑๐ สิงหาคม ๒๕๖๙ ค่ะ',n:'ตรวจค่าขึ้นศาลกับเจ้าหน้าที่ — คดีนี้มีทั้งส่วนไม่มีทุนทรัพย์ (หย่า อำนาจปกครอง) และส่วนมีทุนทรัพย์ (ค่าทดแทน)'},
+ {doc:['F02','F03','F04','F06'],w:'pl',s:'(๑ กรกฎาคม ๒๕๖๙) ขอยื่นฟ้องหย่า ค่าทดแทน อำนาจปกครองบุตร และค่าอุปการะเลี้ยงดูบุตร จำเลย ๒ คนครับ',mv:{pl:[88,330],p:[165,345]},pm:{kit:[200,300]},a:'งานรับฟ้อง',n:'โจทก์ลงชื่อในคำฟ้อง ทนายเป็นผู้เรียง · สำเนาคำฟ้องเท่าจำนวนจำเลย (๒ ชุด)'},
+ {w:'cS1',s:'คดีหมายเลขดำที่ ยชพ.๒๒๐/๒๕๖๙ ศาลสั่งให้สถานพินิจสอบข้อเท็จจริงเกี่ยวกับบุตรทั้งสอง นัดพิจารณาและไกล่เกลี่ย วันที่ ๑๐ สิงหาคม ๒๕๖๙ ค่ะ',n:'ตรวจค่าขึ้นศาลกับเจ้าหน้าที่ — คดีนี้มีทั้งส่วนไม่มีทุนทรัพย์ (หย่า อำนาจปกครอง) และส่วนมีทุนทรัพย์ (ค่าทดแทน)'},
  {w:'pl',s:'(งานการเงิน) ชำระค่าขึ้นศาลและค่าส่งหมายจำเลย ๒ คนครับ',mv:{pl:[416,330],p:[494,345]},a:'การเงิน'},
  {w:'eS2',s:'รับเงินแล้ว นี่ใบเสร็จค่ะ นำกลับไปคืนงานรับฟ้อง',addp:[{id:'rc',k:'cheque',x:470,y:300,lbl:'ใบเสร็จ'}]}
  ]},
@@ -1495,16 +1525,15 @@ const SCN=[
  {w:'fW',s:'(ให้ข้อเท็จจริงในฐานะพยาน) ยายไปส่งหลานที่โรงเรียนทุกวัน ค่าเทอมค่าข้าวแม่เขาจ่ายเองหมดตั้งแต่พ่อเขาย้ายออกค่ะ',mv:{fSoc:[560,360],fW:[220,470],fK1:[460,500],fK2:[580,520],p:[340,470],pl:[100,470]}},
  {w:'fSoc',s:'จะเชิญคุณสมศักดิ์ (บิดา) มาให้ข้อมูล และเยี่ยมบ้านทั้งสองฝ่าย แล้วทำรายงานเสนอศาลค่ะ',n:'ทนายขอคัดรายงานสถานพินิจก่อนวันนัด — ใช้ทั้งเรื่องอำนาจปกครอง ค่าเลี้ยงดู และผลกระทบประกอบค่าทดแทน'}
  ]},
-{id:'cf4',title:'ครอบครัว ④ วันนัด — คำให้การ · ไต่สวนคุ้มครองชั่วคราว · ไกล่เกลี่ย',sideP:'โจทก์',sideD:'จำเลย',use:['judge','clerk','pl','p','dl','d','fM','cMed'],labels:{p:'โจทก์ (ภริยา)',d:'จำเลยที่ ๑ (สามี)',dl:'ทนายจำเลยทั้งสอง'},
+{id:'cf4',title:'ครอบครัว ④ วันนัด — คำให้การ · รายงานสถานพินิจ · ไกล่เกลี่ย',sideP:'โจทก์',sideD:'จำเลย',use:['judge','clerk','pl','p','dl','d','fM','cMed'],labels:{p:'โจทก์ (ภริยา)',d:'จำเลยที่ ๑ (สามี)',dl:'ทนายจำเลยทั้งสอง'},
  chars:{fM:{ic:'👩',c:'#b0453d',l:'จำเลยที่ ๒ (นางสาวเพลิน)',info:'หญิงอื่นที่ถูกฟ้องเรียกค่าทดแทน'}},
  start:{fM:[700,508],cMed:'x'},
  props:[{id:'ms',k:'sign',x:500,y:110,lbl:'ห้องไกล่เกลี่ยและประนอมข้อพิพาท',b:'blank',s:1.3},{id:'tb',k:'table',x:500,y:450,s:2.4,lbl:' ',b:'blank'}],
  steps:[
- {w:'clerk',s:'(๑๐ สิงหาคม ๒๕๖๙) คดีหมายเลขดำที่ ยชพ.๒๒๐/๒๕๖๙ นางสาวิตรี มั่นคง โจทก์ นายสมศักดิ์ มั่นคง ที่ ๑ กับพวก จำเลย นัดพิจารณา ไต่สวนคุ้มครองชั่วคราว และไกล่เกลี่ยค่ะ'},
+ {w:'clerk',s:'(๑๐ สิงหาคม ๒๕๖๙) คดีหมายเลขดำที่ ยชพ.๒๒๐/๒๕๖๙ นางสาวิตรี มั่นคง โจทก์ นายสมศักดิ์ มั่นคง ที่ ๑ กับพวก จำเลย นัดพิจารณาและไกล่เกลี่ยค่ะ'},
  {w:'all',s:'(ทุกคนลุกขึ้นยืนทำความเคารพ)'},
  {doc:['F08'],w:'dl',s:'จำเลยทั้งสองยื่นคำให้การครับ จำเลยที่ ๑ ยอมหย่าแต่โต้แย้งค่าเลี้ยงดู จำเลยที่ ๒ ปฏิเสธว่าไม่รู้ว่าจำเลยที่ ๑ ยังมีภริยา',n:'ข้อต่อสู้ของหญิงอื่น: <b>ไม่รู้</b>ว่ามีภริยา / <b>ไม่เปิดเผย</b> / ภริยา<b>ยินยอม</b> / <b>ขาดอายุความ</b>'},
- {w:'judge',s:'ศาลได้รับรายงานสถานพินิจแล้ว บุตรอยู่กับโจทก์อย่างเหมาะสม ระหว่างพิจารณาจำเลยที่ ๑ จ่ายค่าเลี้ยงดูได้เท่าไร',a:'ไต่สวนคุ้มครองชั่วคราว'},
- {doc:['F09'],w:'judge',s:'ระหว่างพิจารณา ให้บุตรอยู่กับโจทก์ จำเลยที่ ๑ พบบุตรวันเสาร์เว้นเสาร์ และจ่ายค่าเลี้ยงดูคนละ ๔,๐๐๐ บาทต่อเดือน คู่ความไปไกล่เกลี่ยก่อน',n:'คำสั่งคุ้มครองชั่วคราว — เด็กได้รับเงินระหว่างคดี ไม่จ่าย ขอบังคับได้'},
+ {doc:['F09'],w:'judge',s:'ศาลได้รับรายงานสถานพินิจแล้ว บุตรอยู่กับโจทก์อย่างเหมาะสม ให้คู่ความไปไกล่เกลี่ยก่อน เริ่มจากเรื่องบุตร',a:'รายงานสถานพินิจ › ส่งไกล่เกลี่ย',n:'รายงานสถานพินิจใช้ประกอบทั้งการไกล่เกลี่ยและการวินิจฉัยเรื่องอำนาจปกครองและค่าเลี้ยงดูบุตร'},
  {w:'cMed',s:'(ห้องไกล่เกลี่ย) เริ่มจากเรื่องลูกก่อนนะคะ ทั้งเงินและการได้พบพ่อ แล้วค่อยคุยเรื่องค่าทดแทน',bg:'blank',mv:{cMed:[500,380],pl:[300,470],p:[220,470],dl:[700,470],d:[780,470],fM:[870,470],judge:'x',clerk:'x'},a:'แยกทาง: ก ตกลงได้ / ข ตกลงไม่ได้',n:'คดีครอบครัวเน้นไกล่เกลี่ย — ตกลงเรื่องบุตรได้ก่อน แม้เรื่องค่าทดแทนยังตกลงไม่ได้ ก็ทำสัญญาเฉพาะบางประเด็นได้'}
  ]},
 {id:'cf5a',title:'ครอบครัว ⑤ก ตกลงได้ — สัญญาประนีประนอมฉบับเดียวครบทุกเรื่อง · พิพากษาตามยอม',bg:'blank',sideP:'โจทก์',sideD:'จำเลย',use:['cMed','pl','p','dl','d','fM'],labels:{p:'โจทก์ (ภริยา)',d:'จำเลยที่ ๑ (สามี)',dl:'ทนายจำเลยทั้งสอง'},
@@ -1656,7 +1685,7 @@ function renderSim(full){{const og=document.getElementById('objGuide');if(og)og.
   const n=st.w==='all'?{ic:'🧍',c:'#b8892b'}:NODE[st.w];
   $('#side').innerHTML=`<div class="chips top">${cur.steps.map((s,i)=>`<span class="${i===idx?'cur':i<idx?'done':''} ${s.ex?'ex':''} ${s.o?'ob':''}" data-i="${i}">${th(i+1)}</span>`).join('')}</div><div class="muted">${cur.title} · ขั้นที่ ${th(idx+1)}/${th(cur.steps.length)}</div>
    <div class="who"><div class="av" style="background:${n.c}">${n.ic}</div><b>${st.w==='all'?'ทุกคนในห้องพิจารณา':lb(st.w)}</b></div>
-   ${stageBar(st.g)}${st.o?`<span class="objb">⚠ ${st.o}</span> <span class="docbtn" onclick="$('#objGuide').open=true;$('#objGuide').scrollIntoView({behavior:'smooth'})">⚖️ คู่มือการคัดค้าน</span>`:''}<div class="say">${st.s}</div>${st.a?`<div class="act">▸ ${st.a}</div>`:''}${st.ex?exMini(EX[st.ex]):''}${st.doc?st.doc.filter(d=>DOCLIB[d]).map(d=>`<span class="docbtn" data-doc="${d}">📄 ${DOCLIB[d].n.replace(/^วันที่ \S+ /,'')}</span>`).join(''):''}
+   ${stageBar(st.g)}${st.o?`<span class="objb">⚠ ${st.o}</span> <span class="docbtn" onclick="$('#objGuide').open=true;$('#objGuide').scrollIntoView()">⚖️ คู่มือการคัดค้าน</span>`:''}<div class="say">${st.s}</div>${st.a?`<div class="act">▸ ${st.a}</div>`:''}${st.ex?exMini(EX[st.ex]):''}${st.doc?st.doc.filter(d=>DOCLIB[d]).map(d=>`<span class="docbtn" data-doc="${d}">📄 ${DOCLIB[d].n.replace(/^วันที่ \S+ /,'')}</span>`).join(''):''}
    ${st.n||st.l?`<div class="note">${st.n?'📘 '+st.n:''}${st.l?`<br><span class="law">${st.l}</span>`:''}</div>`:''}
 `;
   $('#side').querySelectorAll('.chips span').forEach(s=>s.onclick=()=>{idx=+s.dataset.i;renderSim()});
@@ -1687,9 +1716,9 @@ const LESSONS=[
  {g:'🧭 ผังที่นั่ง — ก่อนเดินเข้าห้องพิจารณา',items:[['seat:civil','คดีแพ่ง'],['seat:crim','คดีอาญา (จำเลยต้องขัง)'],['seat:pet','คดีร้องขอ (ผู้ร้อง/ผู้คัดค้าน)']]},
  {g:'📌 เรื่องควรรู้',items:[['sim:px1','มอบฉันทะ — เสมียนทนายทำอะไรได้ / ไม่ได้']]},
  {g:'🚗💥 คดีแพ่ง: ผู้เสียหายฟ้องละเมิด ๑,๐๐๐,๐๐๐ บาท — ทีละวัน',items:[['sim:cv1','① ปรึกษาทนาย — ค่าเสียหาย · อายุความ'],['sim:cv2','② ส่งหนังสือทวงถาม'],['sim:cv3','③ ยื่นฟ้อง › การเงิน › คืนใบเสร็จ'],['sim:cv4','④ จำเลยยื่นคำให้การ'],['sim:cv5','⑤ ชี้สองสถาน · ส่งไกล่เกลี่ย'],['sim:cv6a','⑥ก [ตกลงได้] สัญญาประนีประนอม'],['sim:cv7a','⑦ก [ตกลงได้] ผิดนัด › บังคับคดี'],['sim:cv6b','⑥ข [ตกลงไม่ได้] สืบพยาน'],['sim:cv7b','⑦ข [ตกลงไม่ได้] ฟังคำพิพากษา'],['sim:cv8b','⑧ข [ตกลงไม่ได้] บังคับคดี']]},
- {g:'💔 คดีครอบครัว: หย่า · ค่าทดแทน (ชู้) · อำนาจปกครอง · ค่าอุปการะเลี้ยงดูบุตร — คดีเดียว ทีละวัน',items:[['sim:cf1','① ปรึกษาทนาย — เหตุหย่า · ชู้ · บุตร'],['sim:cf2','② ยื่นฟ้อง + คุ้มครองชั่วคราว'],['sim:cf3','③ สถานพินิจ — พาบุตรและพยาน'],['sim:cf4','④ คำให้การ · คุ้มครองชั่วคราว · ไกล่เกลี่ย'],['sim:cf5a','⑤ก [ตกลงได้] สัญญาประนีประนอม'],['sim:cf5b','⑤ข [ตกลงไม่ได้] สืบพยาน'],['sim:cf6b','⑥ข [ตกลงไม่ได้] พิพากษา › อายัดเงินเดือน'],['sim:cf7','⑦ คดีถึงที่สุด › บันทึกการหย่าที่อำเภอ']]},
+ {g:'💔 คดีครอบครัว: หย่า · ค่าทดแทน (ชู้) · อำนาจปกครอง · ค่าอุปการะเลี้ยงดูบุตร — คดีเดียว ทีละวัน',items:[['sim:cf1','① ปรึกษาทนาย — เหตุหย่า · ชู้ · บุตร'],['sim:cf2','② ยื่นฟ้อง'],['sim:cf3','③ สถานพินิจ — พาบุตรและพยาน'],['sim:cf4','④ คำให้การ · รายงานสถานพินิจ · ไกล่เกลี่ย'],['sim:cf5a','⑤ก [ตกลงได้] สัญญาประนีประนอม'],['sim:cf5b','⑤ข [ตกลงไม่ได้] สืบพยาน'],['sim:cf6b','⑥ข [ตกลงไม่ได้] พิพากษา › อายัดเงินเดือน'],['sim:cf7','⑦ คดีถึงที่สุด › บันทึกการหย่าที่อำเภอ']]},
  {g:'🚑 คดีอาญา: ขับรถประมาทเป็นเหตุให้ผู้อื่นได้รับอันตรายสาหัส (อัยการเป็นโจทก์) — ทีละวัน',items:[['sim:rc1','① วันเกิดเหตุ — ชน · ช่วยเหลือ · แจ้งตำรวจ'],['sim:rc2','② โรงพยาบาล — ใบรับรองแพทย์ (สาหัส)'],['sim:rc3','③ พนักงานสอบสวน — หมายเรียก · แจ้งข้อหา · ประกัน'],['sim:rc4','④ ไกล่เกลี่ยค่าเสียหายที่โรงพัก'],['sim:rc5','⑤ ส่งสำนวน · อัยการสั่งฟ้อง'],['sim:rc6','⑥ อัยการยื่นฟ้อง · ประกันตัวชั้นศาล'],['sim:rc7a','⑦ก [รับสารภาพ] ชดใช้ · สั่งสืบเสาะ'],['sim:rc8a','⑧ก [รับสารภาพ] คุมประพฤติสืบเสาะ'],['sim:rc9a','⑨ก [รับสารภาพ] ฟังคำพิพากษา — รอการลงโทษ'],['sim:rc7b','⑦ข [ปฏิเสธ] คำร้อง ม.๔๔/๑ · นัดตรวจพยาน'],['sim:rc8b','⑧ข [ปฏิเสธ] ตรวจพยานหลักฐาน'],['sim:rc9b','⑨ข [ปฏิเสธ] ขอหมายเรียกพยาน — ศูนย์หน้าบัลลังก์'],['sim:rc10b','⑩ข [ปฏิเสธ] สืบพยานโจทก์ › จำเลย'],['sim:rc11b','⑪ข [ปฏิเสธ] พิพากษาไม่รอ · ประกันระหว่างอุทธรณ์']]},
- {g:'🚗 คดีอาญา: ยักยอกทรัพย์ (ราษฎรเป็นโจทก์) — ทีละวัน',items:[['sim:em1','① วันเกิดเหตุ — ยืมรถ แล้วนำไปจำนำ'],['sim:em2','② วันทวง — พบรถ ทวงถาม ปรึกษาทนาย'],['sim:em3','③ วันฟ้อง — เอกสาร · ลายมือชื่อ · ยื่นฟ้อง'],['sim:em4','④ ไต่สวนมูลฟ้องนัดแรก — เสมียนขอเลื่อน'],['sim:em5','⑤ ไต่สวนมูลฟ้อง — นัดฟังคำสั่ง'],['sim:em6','⑥ ฟังคำสั่ง — ประทับฟ้อง · ส่งหมายนัด'],['sim:em7','⑦ ก่อนวันนัด — ยื่นประกันตัว'],['sim:em8','⑧ สอบคำให้การ — ไกล่เกลี่ย · ศูนย์นัดความ'],['sim:em8b','⑨ ขอหมายเรียกพยาน › ส่งไปรษณีย์ตอบรับ'],['sim:em9','⑩ สืบพยานโจทก์ › จำเลย'],['sim:em10','⑪ ฟังคำพิพากษา'],['sim:em11','⑫ ราชทัณฑ์ควบคุมตัว · ประกันระหว่างอุทธรณ์']]},
+ {g:'🚗 คดีอาญา: ยักยอกทรัพย์ (ราษฎรเป็นโจทก์) — ทีละวัน',items:[['sim:em1','① วันเกิดเหตุ — ยืมรถ แล้วนำไปจำนำ'],['sim:em2','② วันทวง — พบรถ ทวงถาม ปรึกษาทนาย'],['sim:em3','③ วันฟ้อง — เอกสาร · ลายมือชื่อ · ยื่นฟ้อง'],['sim:em4','④ ไต่สวนมูลฟ้องนัดแรก — เสมียนขอเลื่อน'],['sim:em5','⑤ ไต่สวนมูลฟ้อง — นัดฟังคำสั่ง'],['sim:em6','⑥ ฟังคำสั่ง — ประทับฟ้อง · ส่งหมายนัด · ค่าธรรมเนียมส่วนแพ่ง'],['sim:em7','⑦ ก่อนวันนัด — ยื่นประกันตัว'],['sim:em8','⑧ สอบคำให้การ — ไกล่เกลี่ย · ศูนย์นัดความ'],['sim:em8b','⑨ ขอหมายเรียกพยาน › ส่งไปรษณีย์ตอบรับ'],['sim:em9','⑩ สืบพยานโจทก์ › จำเลย'],['sim:em10','⑪ ฟังคำพิพากษา'],['sim:em11','⑫ ราชทัณฑ์ควบคุมตัว · ประกันระหว่างอุทธรณ์']]},
  {g:'🗞️ คดีอาญา: หมิ่นประมาท (ราษฎรเป็นโจทก์)',items:[['sim:priv','ไต่สวนมูลฟ้อง + ประกันตัว']]},
  {g:'👮 คดีอาญา: อัยการเป็นโจทก์',items:[['sim:crim','สอบคำให้การ + ประกัน'],['sim:crimpre','วันนัดตรวจพยานหลักฐาน'],['sim:crimwit','สืบพยาน: อัยการซักถาม › ถามค้าน + การคัดค้าน']]},
  {g:'💰 คดีแพ่ง: กู้ยืมเงิน',items:[['sim:small','มโนสาเร่: ไกล่เกลี่ย › ให้การ › สืบพยาน (วันเดียว)'],['sim:pretrial','แพ่งสามัญ: วันนัดชี้สองสถาน'],['sim:civil','สืบพยานโจทก์ + หมาย จ./ล.'],['sim:defense','สืบพยานจำเลย ครบ ๔ ขั้น + แถลงปิดคดี']]},
@@ -1710,7 +1739,7 @@ function setLesson(v){
   lessonKey=v;const [m,id]=v.split(':');mode=m;stopAuto();try{speechSynthesis.cancel()}catch(e){}
   if(m==='free'){const bg=SCBG[id]||id==='court'?id:'court';if(bg!==fBg){saveScene();loadScene(bg);saveScene()}}else if(m==='seat'){seatType=id;$('#seatType').value=id;tipSel=-1}else{cur=SCN.find(s=>s.id===id);idx=0;$('#scn').value=id}
   if(m==='lobby')lidx=0;$('#simBar').style.display=(m==='sim'||m==='lobby')?'block':'none';drawLessons();renderCourt();renderFormBox();if(ovId&&m==='sim')closeDocOv();
-  $('#lessonBox').open=false;$('#courtroom').scrollIntoView({block:'start'});
+  $('#lessonBox').open=false;softScroll($('#courtroom'));
 }
 drawLessons();
 $('#modeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{
@@ -1961,10 +1990,11 @@ function docGroups(){
 let formGrp=null;
 function dayDocs(){if(mode!=='sim'||!cur)return null;const L=[];cur.steps.forEach(st=>(st.doc||[]).forEach(d=>{if(DOCLIB[d]&&!L.includes(d))L.push(d)}));return L}
 function renderFormBox(){
+ {const sb=document.getElementById('sumBtn');if(sb){const k=mode==='sim'&&typeof curSum==='function'?curSum():null;sb.style.display=k?'':'none';sb.classList.toggle('primary',!!k&&ovId===k)}}
  const DD=dayDocs();
  if(DD){$('#formBody').innerHTML=`<p class="muted" style="margin:6px 0">เอกสารที่ใช้ในวันนี้ — <b>${escH(cur.title)}</b></p>
   ${DD.length?`<div class="lbtns">${DD.map((k,i)=>`<button data-d="${k}" class="${k===ovId?'on':''}">${th(i+1)}. ${escH(DOCLIB[k].n.replace(/^วันที่ \S+ /,''))}</button>`).join('')}</div>`:'<p class="muted" style="margin:4px 0">วันนี้ไม่มีเอกสารที่ต้องยื่น</p>'}
-  <div class="row" style="gap:5px;margin-top:8px"><button class="b" onclick="openDocOv('N1')">📄 กระดาษเปล่า (โน้ตเวลาสอน)</button></div>
+  <div class="row" style="gap:5px;margin-top:8px">${curSum()?`<button class="b" onclick="openSum()">📋 สรุปทั้งคดี</button>`:''}<button class="b" onclick="openDocOv('N1')">📄 กระดาษเปล่า (โน้ตเวลาสอน)</button></div>
   <p class="muted" style="margin:6px 0 0">แตะชื่อเอกสาร → เปิด<b>ทับฉาก</b> · กด ✍️ แล้วแตะบนเอกสารเพื่อพิมพ์อธิบายเพิ่ม</p>`;
   $('#formBody').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>openDocOv(b.dataset.d));return}
  const G=docGroups(),gs=Object.keys(G);if(!formGrp||!G[formGrp])formGrp=gs.find(g=>g.includes('ชุด ๑'))||gs[0];
@@ -1975,7 +2005,9 @@ function renderFormBox(){
  $('#formGrp').onchange=e=>{formGrp=e.target.value;renderFormBox()};
  $('#formBody').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>openDocOv(b.dataset.d));
 }
-function openDocOv(id){ovId=id;ovPg=0;renderDocOv();renderFormBox();$('#courtroom').scrollIntoView({block:'start'})}
+function curSum(){if(!cur)return null;const k=Object.keys(DOCLIB).find(k=>/^SUM\d+$/.test(k)&&DOCLIB[k].dayPg&&cur.id in DOCLIB[k].dayPg);return k||null}
+function openSum(){const k=curSum();if(!k)return;if(ovId===k){closeDocOv();return}openDocOv(k);ovPg=DOCLIB[k].dayPg[cur.id]||0;renderDocOv()}
+function openDocOv(id){ovId=id;ovPg=0;renderDocOv();renderFormBox();softScroll($('#courtroom'))}
 function confirmClr(){return window.confirm('ลบข้อความที่พิมพ์ไว้ในหน้านี้ทั้งหมด?')}
 function closeDocOv(){ovId=null;ovType=false;$('#docOv').style.display='none';renderFormBox()}
 function renderDocOv(){
@@ -2082,7 +2114,7 @@ function lobbySVG(){
   <g><rect x="420" y="585" width="160" height="34" rx="6" fill="#9aa5b4"/><text x="500" y="607" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">🛂 จุดตรวจค้น</text></g>
   <g class="lh" data-h="check"><rect x="410" y="575" width="180" height="54" rx="10" fill="none" stroke="#b8892b" stroke-width="5"/></g>
   <rect x="440" y="690" width="120" height="22" fill="#cdbfa6"/><text x="500" y="706" text-anchor="middle" font-size="12" fill="#6b3f1f" font-weight="700">ทางเข้าศาล</text>
-  <g id="lav" style="transition:transform 1s cubic-bezier(.5,0,.3,1)"><circle r="22" fill="#b8892b" stroke="#fff" stroke-width="3"/><text y="8" text-anchor="middle" font-size="22">👨‍⚖️</text>
+  <g id="lav" style="transition:transform .4s ease-out"><circle r="22" fill="#b8892b" stroke="#fff" stroke-width="3"/><text y="8" text-anchor="middle" font-size="22">👨‍⚖️</text>
    <rect x="-30" y="26" width="60" height="18" rx="9" fill="#fff" stroke="#b8892b"/><text y="39" text-anchor="middle" font-size="11" font-weight="700">คุณ (ทนาย)</text></g>
   </svg>`;
 }
@@ -2214,7 +2246,7 @@ $('#paper').addEventListener('click',e=>{
     fb.className='fb bad';fb.innerHTML=`📍 <b>ตำแหน่งยังไม่ถูก</b> — ${why} (กด 💡 เพื่อให้ระบบชี้)`;
   }
 });
-function gotoLab(L){party=L;$('#partySel').value=L;doc='exhibit';$('#docSel').value='exhibit';resetDoc();location.hash='#exhibits';setTimeout(()=>$('.lab2').scrollIntoView({behavior:'smooth'}),50)}
+function gotoLab(L){party=L;$('#partySel').value=L;doc='exhibit';$('#docSel').value='exhibit';resetDoc();location.hash='#exhibits';setTimeout(()=>$('.lab2').scrollIntoView(),50)}
 
 /* ================= FILING FLOW ================= */
 const FLOW=[
@@ -2670,8 +2702,11 @@ regA('YA4','คำร้องขอส่งหมายนัดไต่ส�
 regA('YA5','บัญชีพยานโจทก์ (แบบ ๑๕)','ทนายโจทก์ (ผู้ระบุ)','บัญชีระบุพยานโจทก์ ยื่นพร้อมฟ้องเพื่อใช้ไต่สวนมูลฟ้อง',EWL,EWL.notes);
 regA('YA6','หมายนัดไต่สวนมูลฟ้อง (แบบ ๑๙ ตรี)','ทนายโจทก์กรอกเตรียม ยื่นพร้อมฟ้อง — ผู้พิพากษาลงชื่อ','ใช้วันยื่นฟ้อง: กรอกเตรียมยื่นพร้อมคำฟ้อง ศาลลงวันนัดไต่สวนมูลฟ้องและลงชื่อ แล้วส่งให้จำเลยพร้อมสำเนาคำฟ้อง',ESM,[{p:0,x:45,y:368,t:'หน้าแรกช่อง “หมายถึง” ใส่ชื่อจำเลยเท่านั้น'},{p:1,x:45,y:143,t:'ที่อยู่จำเลยกรอกที่แผ่นหลัง ให้ตรงกับคำฟ้องและ ทร.๑๔/๑'},{p:0,x:45,y:440,t:'วันนัดไต่สวนมูลฟ้อง ตามที่ศาลกำหนดวันยื่นฟ้อง'}]);
 regA('YA7','ใบเสร็จค่าส่งหมาย','การเงิน','ชำระที่การเงิน แล้วนำใบเสร็จคืนช่องรับฟ้อง / หน้าบัลลังก์',ERC,[]);
-{const R=cl(ERC);R.pages[0].html=R.pages[0].html.replace('๑๐ เมษายน ๒๕๖๙','๒๖ มิถุนายน ๒๕๖๙').replace('ค่านำส่งหมาย / ค่าใช้จ่ายในการส่งหมาย (จำเลย ๑ คน)','ค่าส่งหมายนัดสอบคำให้การจำเลย (จำเลย ๑ คน)');
- reg('Y05R','วันที่ ⑥ ใบเสร็จค่าส่งหมายนัดสอบคำให้การ','การเงิน','ชำระที่การเงิน แล้วนำใบเสร็จไปยื่นพร้อมคำร้องที่หน้าบัลลังก์ห้องเดิม',R,[]);}
+{const R=cl(ERC);R.pages[0].html=R.pages[0].html.replace('๑๐ เมษายน ๒๕๖๙','๒๖ มิถุนายน ๒๕๖๙').replace('ค่านำส่งหมาย / ค่าใช้จ่ายในการส่งหมาย (จำเลย ๑ คน)','ค่าส่งหมายนัดสอบคำให้การจำเลย (จำเลย ๑ คน)')
+  .replace(/<tr><td>ค่าขึ้นศาล<\/td><td style="text-align:right">– ไม่มี –<\/td><\/tr>/,'<tr><td>ค่าธรรมเนียมคดีส่วนแพ่ง (คำขอให้คืนรถหรือใช้ราคา ทุนทรัพย์ ๓๐๐,๐๐๐ บาท ร้อยละ ๒)</td><td style="text-align:right">๖,๐๐๐.๐๐</td></tr>')
+  .replace('<th style="text-align:right">๕๐๐.๐๐</th>','<th style="text-align:right">๖,๕๐๐.๐๐</th>')
+  .replace(/💡 คดีอาญาราษฎรฟ้องไม่มีค่าขึ้นศาล[^<]*/,'💡 ศาลประทับฟ้องแล้ว — วันที่ชำระค่าส่งหมายนัด อย่าลืมชำระค่าธรรมเนียมส่วนแพ่งตามทุนทรัพย์ที่ขอให้คืนหรือใช้ราคา (ส่วนอาญาไม่มีค่าขึ้นศาล)');
+ reg('Y05R','วันที่ ⑥ ใบเสร็จค่าส่งหมายนัด + ค่าธรรมเนียมส่วนแพ่ง','การเงิน','ชำระค่าส่งหมายนัดสอบคำให้การ พร้อมค่าธรรมเนียมคดีส่วนแพ่ง แล้วนำใบเสร็จไปยื่นพร้อมคำร้องที่หน้าบัลลังก์ห้องเดิม',R,[{p:0,x:45,y:330,t:'ค่าธรรมเนียมส่วนแพ่ง — ชำระวันเดียวกับค่าส่งหมายนัด หลังศาลประทับฟ้อง (ตัวเลขสมมติ ตรวจอัตราจริงกับการเงินของศาล)'}]);}
 
 /* ================= คดีขับรถประมาทเป็นเหตุให้ผู้อื่นได้รับอันตรายสาหัส (อัยการเป็นโจทก์) ================= */
 const RV={p:'พนักงานอัยการคดีศาลแขวงตัวอย่าง',d:'นายขับ ระวัง',v:'นางสาวสมใจ เดินดี',no:'อ.๑๒๐๐',yr:'๖๙',court:'แขวงตัวอย่าง',dl:'นายแก้ว ว่าความ',vl:'นายทนาย ตัวอย่าง',pros:'นายอัยการ ยุติธรรม'};
@@ -3117,15 +3152,6 @@ rf('F03','วันที่ ② เอกสารท้ายคำฟ้อ�
 <tr><td>๖</td><td>รายการค่าใช้จ่ายบุตร + ใบเสร็จค่าเล่าเรียน ค่ารักษาพยาบาล</td></tr></table>
 <p class="box" style="margin-top:4%">✔ ทำครบ: ศาล ๑ · จำเลยคนละ ๑ · สำนักงาน ๑<br>✔ ข้อมูลรายได้สามี ถ้าไม่มีเอกสาร ระบุพยาน “หมาย” เรียกจากนายจ้าง</p>`)]},[]);
 rf('F04','วันที่ ② ใบแต่งทนายความ (แบบ ๙)','ภริยา (โจทก์) ลงชื่อผู้แต่ง · ทนายลงชื่อ','มีอำนาจประนีประนอมยอมความ — คดีครอบครัวส่วนใหญ่จบที่การไกล่เกลี่ย',clw(CF,{date:['๑','กรกฎาคม']}),[]);
-rf('F05','วันที่ ② คำร้องขอคุ้มครองชั่วคราว (แบบ ๗)','ภริยา (โจทก์) · ทนายเรียง','ระหว่างพิจารณา: ให้บุตรอยู่กับโจทก์ และให้จำเลยที่ ๑ จ่ายค่าเลี้ยงดูบุตร',
- x7(CF,{date:['๑','กรกฎาคม'],sg:SGs('(ทนายลงชื่อ)','ทนายโจทก์',CF.pl),title:'คำร้องขอคุ้มครองประโยชน์ของผู้เยาว์ระหว่างพิจารณา',body:[
- 'คดีนี้โจทก์ฟ้องหย่าจำเลยที่ ๑ ขอเป็นผู้ใช้อำนาจปกครองบุตรผู้เยาว์ ๒ คน และเรียกค่าอุปการะ',
- 'เลี้ยงดูบุตร ระหว่างพิจารณา บุตรทั้งสองอยู่กับโจทก์ มีค่าใช้จ่ายด้านการศึกษาและการดำรงชีพทุกเดือน',
- 'แต่จำเลยที่ ๑ หยุดส่งเงินนับแต่ไปอยู่กับจำเลยที่ ๒ หากต้องรอจนคดีถึงที่สุด บุตรจะเดือดร้อน',
- 'โจทก์ขอให้ศาลสั่งให้บุตรอยู่ในความดูแลของโจทก์ และให้จำเลยที่ ๑ ชำระค่าเลี้ยงดูบุตร'],back:[
- 'คนละ ๕,๐๐๐ บาทต่อเดือน ระหว่างพิจารณา',
- 'ข้อ ๒. ทั้งนี้ เพื่อคุ้มครองสวัสดิภาพและประโยชน์ของผู้เยาว์ ขอศาลได้โปรดไต่สวนและมีคำสั่งตามคำร้อง']}),
- [{p:0,x:45,y:640,t:'คุ้มครองชั่วคราวในคดีครอบครัว — ศาลไต่สวนแล้วสั่งได้ก่อนพิพากษา (ตรวจบทบัญญัติ พ.ร.บ.ศาลเยาวชนฯ ที่ใช้)'}]);
 rf('F06','วันที่ ② บัญชีระบุพยานโจทก์ (แบบ ๑๕)','ทนายโจทก์ (ผู้ระบุ)','พยานเรื่องเหตุหย่า การแสดงตนโดยเปิดเผย ค่าใช้จ่ายบุตร และรายได้สามี',
  cwl(CF,{day:'๑',mon:'กรกฎาคม',me:`${CF.p} โจทก์ โดย${CF.pl} ทนายโจทก์`,sgn:CF.pl,rows:[['นางสาวิตรี มั่นคง (โจทก์)','ตามคำฟ้อง','นำ'],['นางสาวใจดี เห็นจริง (เพื่อนร่วมงาน)','๔ ม.๒ ต.บางตัวอย่าง อ.เมือง จ.ตัวอย่าง','นำ'],['ฝ่ายบุคคล บริษัทนายจ้างจำเลยที่ ๑','บริษัท วิศวกรรมตัวอย่าง จำกัด','หมาย'],['ภาพโพสต์ / ภาพถ่าย / แชท','อยู่ที่โจทก์','นำ'],['รายงานสถานพินิจ','สถานพินิจฯ','หมาย']]}));
 rf('F07','วันที่ ③ หนังสือนัดสอบข้อเท็จจริง (สถานพินิจ)','สถานพินิจและคุ้มครองเด็กและเยาวชน','โจทก์พาบุตรทั้งสองและพยานไปให้ข้อเท็จจริงตามนัด',
@@ -3143,11 +3169,10 @@ rf('F08','วันที่ ④ คำให้การจำเลยที�
  'ค่าทดแทนตามฟ้องสูงเกินส่วน',
  'ขอศาลได้โปรดพิพากษายกฟ้องในส่วนของจำเลยที่ ๒']}),
  [{p:0,x:45,y:542,t:'จำเลยที่ ๑ (สามี) ยื่นคำให้การแยก — มักต่อสู้เรื่องจำนวนค่าเลี้ยงดูและขอใช้อำนาจปกครองร่วม'}]);
-rf('F09','วันที่ ④ รายงานกระบวนพิจารณา (แบบ ๒๒) — คุ้มครองชั่วคราว · ไกล่เกลี่ย','ศาลบันทึก · คู่ความลงชื่อ','ศาลไต่สวนคำร้องคุ้มครองชั่วคราว แล้วส่งคู่ความไปไกล่เกลี่ย',
+rf('F09','วันที่ ④ รายงานกระบวนพิจารณา (แบบ ๒๒) — คำให้การ · ไกล่เกลี่ย','ศาลบันทึก · คู่ความลงชื่อ','จำเลยยื่นคำให้การ ศาลรับรายงานสถานพินิจ แล้วส่งคู่ความไปไกล่เกลี่ย',
  cg22(CF,{date:['๑๐','สิงหาคม'],lines:['โจทก์และทนายโจทก์มาศาล จำเลยทั้งสองและทนายจำเลยมาศาล จำเลยทั้งสองยื่นคำให้การแล้ว',
- 'ศาลได้รับรายงานของสถานพินิจฯ แล้ว ไต่สวนคำร้องขอคุ้มครองชั่วคราว',
- 'ระหว่างพิจารณา ให้บุตรทั้งสองอยู่ในความดูแลของโจทก์ จำเลยที่ ๑ มีสิทธิพบบุตรวันเสาร์เว้นเสาร์',
- 'ให้จำเลยที่ ๑ ชำระค่าเลี้ยงดูบุตรคนละ ๔,๐๐๐ บาทต่อเดือน เริ่ม ๕ กันยายน ๒๕๖๙',
+ 'ศาลได้รับรายงานของสถานพินิจฯ แล้ว ให้คู่ความตรวจดู',
+ 'ศาลสอบถามแล้ว คู่ความแถลงว่าประสงค์จะเจรจาเรื่องบุตร ค่าอุปการะเลี้ยงดู และค่าทดแทน',
  'คู่ความประสงค์ไกล่เกลี่ย ให้ส่งศูนย์ไกล่เกลี่ยและประนอมข้อพิพาท'],sigs:['ลงชื่อ (โจทก์ลงชื่อ) โจทก์   ลงชื่อ (จำเลยลงชื่อ) จำเลยที่ ๑','ลงชื่อ (จำเลยลงชื่อ) จำเลยที่ ๒   ลงชื่อ (ทนายลงชื่อ) ทนายโจทก์']}),[]);
 rf('F10','วันที่ ⑤ก สัญญาประนีประนอมยอมความ (แบบ ๒๙)','โจทก์ จำเลยทั้งสองลงชื่อ · ผู้พิพากษาลงชื่อ','ตกลงครบทุกเรื่องในฉบับเดียว: หย่า · อำนาจปกครอง · ค่าเลี้ยงดู · สิทธิพบบุตร · ค่าทดแทน',
  cg29(CF,{date:['๑๐','สิงหาคม'],charge:'หย่า ค่าทดแทน อำนาจปกครองบุตร ค่าอุปการะเลี้ยงดูบุตร',parties:'นางสาวิตรี มั่นคง โจทก์ กับ จำเลยทั้งสอง',lines:[
@@ -3174,7 +3199,7 @@ rf('F12','วันที่ ⑥ข คำพิพากษา (แบบ ๓�
  'จำเลยที่ ๑ มีภริยาและแสดงตนโดยเปิดเผย ตามรายงานสถานพินิจ บุตรอยู่กับโจทก์อย่างเหมาะสม',
  'พิพากษาให้โจทก์และจำเลยที่ ๑ หย่าขาดจากกัน ให้โจทก์เป็นผู้ใช้อำนาจปกครองบุตรทั้งสองแต่ผู้เดียว',
  'ให้จำเลยที่ ๑ ชำระค่าอุปการะเลี้ยงดูบุตรคนละ ๕,๐๐๐ บาทต่อเดือน นับแต่วันฟ้องจนบุตรบรรลุนิติภาวะ',
- 'หักส่วนที่ชำระตามคำสั่งคุ้มครองชั่วคราวแล้ว ให้จำเลยที่ ๑ และที่ ๒ ชำระค่าทดแทนคนละ ๒๐๐,๐๐๐ บาท',
+ 'ให้จำเลยที่ ๑ และที่ ๒ ชำระค่าทดแทนคนละ ๒๐๐,๐๐๐ บาท',
  'พร้อมดอกเบี้ยร้อยละ ๕ ต่อปีนับแต่วันฟ้อง ให้จำเลยทั้งสองใช้ค่าฤชาธรรมเนียมแทนโจทก์',
  'กำหนดค่าทนายความ ๑๕,๐๐๐ บาท คำขออื่นให้ยก']}),[]);
 rf('F13','วันที่ ⑥ข คำขอให้ออกหมายบังคับคดี (แบบ ๗) — อายัดเงินเดือน','ทนายโจทก์','จำเลยที่ ๑ ไม่จ่ายค่าเลี้ยงดู — ขอหมายบังคับคดี แล้วขออายัดเงินเดือนจากนายจ้าง',
@@ -3374,15 +3399,15 @@ function pageHTML(pg,showPins){
 }
 function renderDoc(){
   const D=DOCLIB[docId];
-  const groups=[...new Set(Object.values(DOCLIB).filter(d=>!d.set).map(d=>d.g))];
-  $('#docList').innerHTML=groups.map(g=>`<div class="dl-grp"><div>${g}</div><div class="lbtns">${Object.entries(DOCLIB).filter(([,d])=>d.g===g&&!d.set).map(([k,d])=>`<button data-d="${k}" class="${k===docId?'on':''}">${d.n}</button>`).join('')}</div></div>`).join('');
+  const groups=[...new Set(Object.values(DOCLIB).filter(d=>!d.set).map(d=>d.g))].sort((a,b)=>String(b).startsWith('📋')-String(a).startsWith('📋'));
+  $('#docList').innerHTML=groups.map(g=>`<div class="dl-grp"><div>${g}</div><div class="lbtns">${Object.entries(DOCLIB).filter(([,d])=>d.g===g&&!d.set).sort((a,b)=>/^SUM\d/.test(b[0])-/^SUM\d/.test(a[0])).map(([k,d])=>`<button data-d="${k}" class="${k===docId?'on':''}">${d.n}</button>`).join('')}</div></div>`).join('');
   $('#docList').insertAdjacentHTML('afterbegin',`<div class="dl-grp"><div>📦 ชุดฟ้อง ๓ ชุด (ส่งศาล / ส่งจำเลย / กลับสำนักงาน)</div><div class="lbtns"><button onclick="gotoKit()">เปิดรายการชุดฟ้อง แพ่ง / อาญา ➜</button></div></div>`);
-  $('#docList').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>{docId=b.dataset.d;docPg=0;notSel=-1;$('#docBox').open=false;renderDoc();$('#docs').scrollIntoView({block:'start'})});
+  $('#docList').querySelectorAll('button[data-d]').forEach(b=>b.onclick=()=>{docId=b.dataset.d;docPg=0;notSel=-1;$('#docBox').open=false;renderDoc();softScroll($('#docs'))});
   $('#curDoc').textContent=D.n;
   $('#pgTabs').innerHTML=D.pages.map((p,i)=>`<button data-p="${i}" class="${i===docPg?'on':''}">${p.lab||(i===0?'หน้า':'หลัง')}</button>`).join('');
   $('#pgTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{docPg=+b.dataset.p;renderDoc()});
   const fp=$('#fpage');fp.className='fpage'+(docFill?'':' blank');fp.innerHTML=pageHTML(docPg,true);fitFl(fp);if(typeof bindNB==='function')bindNB(fp);
-  fp.querySelectorAll('.pin').forEach(b=>b.onclick=()=>{notSel=+b.dataset.i;renderDoc();const li=$('#docInfo li.on');li&&li.scrollIntoView({block:'nearest',behavior:'smooth'})});
+  fp.querySelectorAll('.pin').forEach(b=>b.onclick=()=>{notSel=+b.dataset.i;renderDoc();const li=$('#docInfo li.on');li&&li.scrollIntoView({block:'nearest'})});
   $('#fillBtn').textContent=docFill?'✍️ ซ่อนการกรอก':'✍️ แสดงการกรอก';
   $('#docInfo').innerHTML=`<h2>${D.n}</h2><div class="muted">👤 ${D.who}</div><p style="margin:6px 0">${D.desc}</p>
    <b>จุดที่ต้องสังเกต</b> <span class="muted">(แตะหมายเลขบนเอกสาร หรือในรายการ)</span>
@@ -3391,7 +3416,7 @@ function renderDoc(){
 }
 $('#fillBtn').onclick=()=>{docFill=!docFill;renderDoc()};
 $('#zoomBtn').onclick=()=>openPop(`<div class="fpage ${docFill?'':'blank'}" style="max-width:none">${pageHTML(docPg,false)}</div>`,true);setTimeout(()=>fitFl(document.querySelector('#pop .fpage')),60);
-function gotoDoc(id){docId=id;docPg=0;notSel=-1;$('#docBox').open=false;location.hash='#docs';renderDoc();setTimeout(()=>$('#docs').scrollIntoView({block:'start'}),30)}
+function gotoDoc(id){docId=id;docPg=0;notSel=-1;$('#docBox').open=false;location.hash='#docs';renderDoc();setTimeout(()=>softScroll($('#docs')),30)}
 
 
 const KSTEP=[
@@ -3451,8 +3476,63 @@ function bindNB(root){root.querySelectorAll('[data-nb]').forEach(el=>{const k=el
  el.oninput=()=>{const t=el.innerText;if(t.trim())NB[k]=t;else delete NB[k];saveNB()};el.onclick=e=>e.stopPropagation()})}
 function printOv(){if(document.activeElement)document.activeElement.blur();document.body.classList.add('printing');setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('printing'),300)},50)}
 renderFormBox();
-function gotoKit(){location.hash='#docs';$('#kitBox').open=true;setTimeout(()=>$('#kitBox').scrollIntoView({behavior:'smooth'}),60)}
+function gotoKit(){location.hash='#docs';$('#kitBox').open=true;setTimeout(()=>$('#kitBox').scrollIntoView(),60)}
 
+/* ================= 📋 สรุปรายการทั้งคดี — สร้างอัตโนมัติจากฉากจำลองทีละวัน (แบ่งหน้าตามความสูงจริง) ================= */
+const SUMG='📋 สรุปรายการทั้งคดี — ทุกวัน ทุกขั้นตอน';
+function buildCaseSummaries(){
+ const strip=t=>String(t||'').replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+ const host=document.createElement('div');host.style.cssText='position:fixed;left:-10000px;top:0;width:595px;visibility:hidden;pointer-events:none';
+ host.innerHTML='<div class="fpage" style="width:595px;max-width:none;margin:0"><div class="hp"></div></div>';document.body.appendChild(host);
+ const hp=host.querySelector('.hp'),LIM=842*0.93;
+ Object.keys(DOCLIB).filter(k=>/^SUM\d+$/.test(k)).forEach(k=>delete DOCLIB[k]);
+ let ci=0;
+ LESSONS.forEach(L=>{
+  const sims=L.items.filter(x=>x[0].startsWith('sim:')).map(x=>SCN.find(s=>s.id===x[0].slice(4))).filter(Boolean);
+  if(!sims.length||!/คดี/.test(L.g))return;
+  const dg=sims.flatMap(S=>S.steps.flatMap(t=>t.doc||[])).map(d=>DOCLIB[d]).find(d=>d&&!d.set&&d.g&&!/^SUM/.test(d.g));
+  const name=L.g.replace(/\s*—\s*(คดีเดียว\s*)?ทีละวัน\s*$/,'');
+  const rows=[];let no=0;
+  sims.forEach(S=>{
+   const lb=k=>k==='all'?'ทุกคนในห้อง':(S.labels&&S.labels[k])||(S.chars&&S.chars[k]&&S.chars[k].l)||(NODE[k]&&NODE[k].l)||k;
+   rows.push({day:S.title,cnt:S.steps.length,id:S.id});
+   S.steps.forEach(st=>{no++;
+    const docs=(st.doc||[]).filter(d=>DOCLIB[d]).map(d=>strip(DOCLIB[d].n.replace(/^วันที่ \S+ /,'')));
+    rows.push({html:`<tr><td class="c">${th(no)}</td><td>${escH(strip(lb(st.w)))}</td><td>${escH(strip(st.s))}${st.a?`<span class="sa"> ▸ ${escH(strip(st.a))}</span>`:''}${st.l?`<span class="sl"> [${escH(strip(st.l))}]</span>`:''}${docs.length?`<span class="sdoc"> 📄 ${docs.map(escH).join(' · ')}</span>`:''}</td></tr>`});
+   });
+  });
+  const dayRow=(t,cont)=>`<tr class="sd"><td colspan="3">${escH(t)}${cont?' <small>(ต่อ)</small>':''}</td></tr>`;
+  const thead='<tr><th style="width:6%">ที่</th><th style="width:19%">ผู้ดำเนินการ</th><th>รายการที่เกิดขึ้น ▸ การกระทำ · [กฎหมาย] · 📄 เอกสาร</th></tr>';
+  const top=first=>first?`<div class="hc b" style="font-size:1.12em">สรุปรายการที่เกิดขึ้นทั้งคดี</div><div class="hc" style="font-size:.92em">${escH(name)}</div><div class="hc muted2" style="font-size:.75em">${th(sims.length)} วันนัด/ขั้นตอน · ${th(no)} รายการ · ข้อมูลสมมติเพื่อการสอน</div>`:`<div class="b" style="font-size:.85em">สรุปรายการทั้งคดี — ${escH(name)}</div>`;
+  const pages=[],notes=[],dayPg={};let i=0,curDay=null;
+  while(i<rows.length){
+   const first=!pages.length;let body='',cnt=0,pend=[];
+   if(!rows[i].day&&curDay)body=dayRow(curDay,true);
+   const draw=b=>{hp.innerHTML=top(first)+`<table class="ht sumt">${thead}${b}</table>`;return hp.querySelector('table')};
+   while(i<rows.length){
+    const r=rows[i],add=r.day?dayRow(r.day):r.html;const T=draw(body+add);
+    const tr=T.rows[T.rows.length-1];
+    if(tr.offsetTop+T.offsetTop+tr.offsetHeight>LIM&&cnt>0)break;
+    const yy=tr.offsetTop+T.offsetTop+tr.offsetHeight/2;
+    if(r.day){ // อย่าให้หัววันค้างท้ายหน้า
+     const nx=rows[i+1];if(nx&&!nx.day){const T2=draw(body+add+nx.html),t2=T2.rows[T2.rows.length-1];if(t2.offsetTop+T2.offsetTop+t2.offsetHeight>LIM&&cnt>0)break}
+     curDay=r.day;pend.push({t:r.day,c:r.cnt,y:yy,id:r.id});
+    }
+    body+=add;cnt++;i++;
+   }
+   pend.forEach(d=>{dayPg[d.id]=pages.length});
+  pend.forEach(d=>notes.push({p:pages.length,x:22,y:Math.round(d.y),t:`${escH(d.t)} <span class="muted">(${th(d.c)} รายการ)</span>`}));
+   pages.push({html:top(first)+`<table class="ht sumt">${thead}${body}</table><div class="sumpg">หน้า ${th(pages.length+1)}/@@</div>`,f:[]});
+  }
+  pages.forEach((P,k)=>{P.html=P.html.replace('@@',th(pages.length));P.lab='หน้า '+th(k+1)});
+  DOCLIB['SUM'+(++ci)]={g:dg?dg.g:SUMG,n:'📋 สรุปทั้งคดี (ทุกวัน ทุกขั้นตอน)',short:name.replace(/^\S+\s+/,'').replace(/^คดี[^:]*:\s*/,''),who:'สร้างจากฉากจำลองทีละวันในห้องพิจารณา (อัปเดตตามฉากอัตโนมัติ)',
+   desc:`รวมทุกรายการที่เกิดขึ้นในคดีนี้ เรียงตามวัน — ${th(sims.length)} วันนัด/ขั้นตอน ${th(no)} รายการ: ใครทำอะไร พูดอะไร บทกฎหมาย และเอกสารที่ใช้ในแต่ละขั้น · แตะหมายเลขด้านล่างเพื่อไปยังวันนั้น`,notes,pages,dayPg};
+ });
+ host.remove();
+ const S=Object.values(DOCLIB).filter(d=>d.short),C={};S.forEach(d=>C[d.g]=(C[d.g]||0)+1);S.forEach(d=>{if(C[d.g]>1)d.n='📋 สรุปทั้งคดี — '+d.short});
+}
+buildCaseSummaries();
+try{document.fonts&&document.fonts.ready.then(()=>{buildCaseSummaries();if(/^SUM\d+$/.test(docId)){if(!DOCLIB[docId])docId='SUM1';docPg=Math.min(docPg,DOCLIB[docId].pages.length-1)}renderDoc()})}catch(e){}
 renderDoc();
 
 /* ================= ROADMAP: เส้นทางคดี & วันนัด ================= */
@@ -3882,7 +3962,7 @@ function rmBind(box){
 }
 function rmGo(id){rmSel=id;renderRM();const mob=matchMedia('(max-width:860px)').matches;
   if(mob&&id){openPop(`<div id="rmPop">${rmDetail(RMIDX[id])}</div>`,true);rmBind($('#rmPop'))}
-  else{const el=document.querySelector(`.rmn[data-r="${id}"]`);el&&el.scrollIntoView({block:'nearest',behavior:'smooth'})}}
+  else{const el=document.querySelector(`.rmn[data-r="${id}"]`);el&&el.scrollIntoView({block:'nearest'})}}
 function renderRM(){
   $('#rmTabs').innerHTML=Object.entries(RM).map(([k,v])=>`<button data-k="${k}" class="${k===rmTrack?'on':''}">${v.t}</button>`).join('');
   $('#rmTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{rmTrack=b.dataset.k;rmSel=null;renderRM()});
