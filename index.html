@@ -248,7 +248,7 @@ details#lessonBox summary::-webkit-details-marker{display:none}
 .check li.done{color:var(--ok)}
 .check li .ex{display:none;color:var(--ink);font-size:.86rem;margin:4px 0 0 22px}
 .check li.done .ex{display:block}
-.legendx{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.legendx{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:10px}
 @media(max-width:700px){.legendx{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .legendx div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.88rem}
 .legendx b{font-size:1.4rem;color:var(--red);margin-right:6px}
@@ -368,6 +368,23 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
  #docs .fpage{max-width:calc((100vh - 185px)*595/842)}
  .docov{max-height:100%}
 }
+
+/* หน้าปั๊มเอกสาร (จอใหญ่): ทั้งหน้าไม่เลื่อน · เอกสารซ้ายอยู่นิ่ง · เลื่อนเฉพาะรายการขวา */
+@media(min-width:921px){
+ main:has(>#exhibits.on){overflow:hidden}
+ #exhibits.on{height:100%}
+ #exhibits>.card{height:100%;box-sizing:border-box;display:flex;flex-direction:column;padding:10px 12px}
+ #exhibits>.card>*{flex:none}
+ #exhibits>.card>h2{margin:0;font-size:1.05rem}
+ #exhibits .legendx{margin-top:6px;gap:6px}#exhibits .legendx div{padding:3px 8px;font-size:.78rem}#exhibits .legendx b{font-size:1.05rem}
+ #exhibits>.card>.row{margin-top:6px!important}
+ #exhibits .lab2{flex:1 1 auto;min-height:0;margin-top:8px;align-items:stretch}
+ #exhibits .lab2>.pic{position:relative;top:auto;height:100%;min-height:0;overflow:hidden;container-type:size}
+ #exhibits .lab2 .desk{height:100%;box-sizing:border-box;padding:10px;align-items:center}
+ #exhibits .lab2 .paper{max-width:min(100%,calc((100cqh - 20px)*210/297))}
+ #exhibits .lab2 .paper.spread{max-width:min(100%,calc((100cqh - 20px)*420/297))}
+ #exhibits .lab2>.txt{height:100%;overflow-y:auto;overscroll-behavior:contain;padding-right:6px}
+}
 </style>
 </head>
 <body>
@@ -422,13 +439,13 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
   <div class="card">
     <h2>ห้องปฏิบัติการปั๊มเอกสาร</h2>
     <div class="legendx">
-      <div><b>จ.</b>เอกสารที่<u>โจทก์</u>อ้างส่ง</div><div><b>ล.</b>เอกสารที่<u>จำเลย</u>อ้างส่ง</div><div><b>ร.</b>เอกสารที่<u>ผู้ร้อง</u>อ้างส่ง</div><div><b>ค.</b>เอกสารที่<u>ผู้คัดค้าน</u>อ้างส่ง</div>
+      <div><b>จ.</b>เอกสารที่<u>โจทก์</u>อ้างส่ง</div><div><b>ล.</b>เอกสารที่<u>จำเลย</u>อ้างส่ง</div><div><b>ร.</b>เอกสารที่<u>ผู้ร้อง</u>อ้างส่ง</div><div><b>ค.</b>เอกสารที่<u>ผู้คัดค้าน</u>อ้างส่ง</div><div><b>จร.</b>เอกสารที่<u>โจทก์ร่วม</u>อ้างส่ง</div>
     </div>
-    <p class="muted" style="margin:8px 0 0">ตัวอักษรขึ้นกับ<b>ฝ่ายที่อ้าง</b> ไม่ใช่พยานที่ถือเอกสาร — เช่น ทนายจำเลยส่งเอกสารผ่านพยานโจทก์ขณะถามค้าน ก็ยังเป็น <b>ล.</b> · เลขเรียงต่อเนื่องตลอดคดีของแต่ละฝ่าย · รูปแบบตรายางแต่ละสำนักงาน/ศาลอาจต่างกัน</p>
+
     <div class="row" style="justify-content:space-between;margin-top:12px">
       <div class="row">
         <select id="docSel"></select>
-        <select id="partySel"><option value="จ">ฝ่ายที่อ้าง: โจทก์ (จ.)</option><option value="ล">ฝ่ายที่อ้าง: จำเลย (ล.)</option><option value="ร">ฝ่ายที่อ้าง: ผู้ร้อง (ร.)</option><option value="ค">ฝ่ายที่อ้าง: ผู้คัดค้าน (ค.)</option></select>
+        <select id="partySel"><option value="จ">ฝ่ายที่อ้าง: โจทก์ (จ.)</option><option value="ล">ฝ่ายที่อ้าง: จำเลย (ล.)</option><option value="ร">ฝ่ายที่อ้าง: ผู้ร้อง (ร.)</option><option value="ค">ฝ่ายที่อ้าง: ผู้คัดค้าน (ค.)</option><option value="จร">ฝ่ายที่อ้าง: โจทก์ร่วม (จร.)</option></select>
       </div>
       <div class="row">
         <button class="b" id="hintBtn">💡 ชี้ตำแหน่งขั้นต่อไป</button>
@@ -436,20 +453,18 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
         <button class="b" id="resetDoc">↺ ล้างเอกสาร</button>
       </div>
     </div>
-    <p class="muted" style="margin:6px 0 0">① เลือกตรา/ช่องที่จะกรอกจากรายการด้านขวา (บนมือถือ: ด้านล่างภาพ) ② แตะบนเอกสารตรงตำแหน่งที่ถูก — ระบบตรวจทั้ง<b>ตำแหน่ง</b>และ<b>ลำดับ</b></p>
+
     <div class="split lab2">
       <div class="pic"><div class="desk"><div class="paper" id="paper"></div></div></div>
       <div class="txt">
+    <p class="muted labhelp" style="margin:0 0 6px">① เลือกตรา/ช่องที่จะกรอกจากรายการด้านขวา (บนมือถือ: ด้านล่างภาพ) ② แตะบนเอกสารตรงตำแหน่งที่ถูก — ระบบตรวจทั้ง<b>ตำแหน่ง</b>และ<b>ลำดับ</b></p>
         <div class="fb" id="fb"></div>
         <b>① เลือกตรา / ช่องที่จะกรอก</b>
         <div class="tray" id="tray"></div>
         <b style="display:block;margin-top:12px">② รายการที่ต้องทำ</b><ul class="check" id="check"></ul>
+    <p class="muted labhelp" style="margin:10px 0 0">💡 ตัวอักษรขึ้นกับ<b>ฝ่ายที่อ้าง</b> ไม่ใช่พยานที่ถือเอกสาร — เช่น ทนายจำเลยส่งเอกสารผ่านพยานโจทก์ขณะถามค้าน ก็ยังเป็น <b>ล.</b> · ผู้เสียหายที่เข้าร่วมเป็นโจทก์กับอัยการใช้ <b>จร.</b> แยกเลขจาก จ. ของอัยการ · เลขเรียงต่อเนื่องตลอดคดีของแต่ละฝ่าย · รูปแบบตรายางแต่ละสำนักงาน/ศาลอาจต่างกัน</p>
       </div>
     </div>
-    <div class="card" style="margin-top:16px">
-    <h2>เส้นทางการยื่นคำฟ้องคดีแพ่ง (ยื่นที่ศาลด้วยตนเอง)</h2>
-    <div class="flow" id="flow"></div>
-    <div class="stdetail" id="stdetail"></div>
   </div>
 </section>
 
@@ -843,6 +858,7 @@ const EX={
  r9:{mark:'ร.๑',pg:'๑',party:'ผู้ร้อง',sender:'',case:'พ.๗๘๙/๒๕๗๐',lab:'ร'},
  ej1:{mark:'จ.๑',pg:'๒',party:'โจทก์',sender:'นางสาวมณี',case:'อ.๙๐๑/๒๕๖๙',lab:'จ'},
  ej2:{mark:'จ.๒',pg:'๑',party:'โจทก์',sender:'นายสมบัติ',case:'อ.๙๐๑/๒๕๖๙',lab:'จ'},
+ jr1:{mark:'จร.๑',pg:'๓',party:'โจทก์ร่วม',sender:'นางสาวสมใจ',case:'อ.๑๒๐๐/๒๕๖๙',lab:'จร'},
  el1:{mark:'ล.๑',pg:'๓',party:'จำเลย',sender:'นายชัย',case:'อ.๙๐๑/๒๕๖๙',lab:'ล'}
 };
 const SCN=[
@@ -1362,6 +1378,8 @@ const SCN=[
  {w:'p',s:'ไฟเขียวทางตรงค่ะ รถเก๋งเลี้ยวขวาตัดหน้าโดยไม่หยุดรอ ดิฉันเบรกไม่ทัน',g:'ซักถาม'},
  {w:'rVL',s:'หลังเกิดเหตุ คุณทำงานได้หรือไม่ ขาดรายได้เท่าไร',g:'ซักถาม',n:'ทนายโจทก์ร่วมนำสืบ<b>ค่าเสียหาย</b> ประกอบคำร้อง ม.๔๔/๑'},
  {w:'p',s:'ปิดร้านไป ๓ เดือน ขาดรายได้เดือนละประมาณ ๓๐,๐๐๐ บาทค่ะ',g:'ซักถาม'},
+ {w:'rVL',s:'ทนายโจทก์ร่วมขอส่งใบเสร็จค่ารักษาพยาบาล ๓ แผ่น ให้พยานยืนยันว่าเป็นใบเสร็จที่ได้รับจากโรงพยาบาลครับ',g:'ซักถาม'},
+ {w:'judge',s:'รับไว้ หมายเป็น “เอกสารหมาย จร.๑”',ex:'jr1',g:'ซักถาม',n:'เอกสารที่<b>โจทก์ร่วม</b>อ้างส่ง ใช้อักษร <b>จร.</b> เรียงเลขของโจทก์ร่วมเอง แยกจาก <b>จ.</b> ของพนักงานอัยการ'},
  {w:'dl',s:'ถ้าคุณขับช้ากว่านี้ อุบัติเหตุคงไม่เกิดใช่ไหม',g:'ถามค้าน'},
  {w:'pl',s:'คัดค้านครับ เป็นการถามความเห็นให้พยานคาดเดา',g:'ถามค้าน',o:'ถามความเห็น / ให้พยานคาดเดา'},
  {w:'judge',s:'คัดค้านฟังขึ้น ให้ทนายจำเลยเปลี่ยนคำถาม',g:'ถามค้าน'},
@@ -2149,6 +2167,7 @@ const PARTY={
  'จ':{L:'จ',no:'๒',party:'โจทก์',sender:'นายเอ',case:'พ.๑๒๓/๒๕๖๙',title:'สัญญากู้ยืมเงิน',head:'ทำที่ บ้านเลขที่ ๑ ...',body:'ข้าพเจ้า นายบี สมมติ ผู้กู้ ได้กู้ยืมเงินจาก นายเอ ตัวอย่าง ผู้ให้กู้ เป็นจำนวน ๑๐๐,๐๐๐ บาท ตกลงชำระคืนภายใน ...',sig:'ลงชื่อ ................ ผู้กู้'},
  'ล':{L:'ล',no:'๑',party:'จำเลย',sender:'นายเอ (ถามค้าน)',case:'พ.๑๒๓/๒๕๖๙',title:'ใบส่งสินค้า',head:'ร้าน บี การค้า',body:'รายการสินค้า ... จำนวน ... ราคารวม ๘๐,๐๐๐ บาท ส่งมอบให้ นายเอ ตัวอย่าง',sig:'ลงชื่อ ................ ผู้รับสินค้า'},
  'ร':{L:'ร',no:'๑',party:'ผู้ร้อง',sender:'นางซี',case:'พ.๔๕๖/๒๕๖๙',title:'มรณบัตร (สำเนา)',head:'สำนักทะเบียน ...',body:'ชื่อผู้ตาย นายอี สมมติ ถึงแก่ความตายเมื่อวันที่ ... สาเหตุ ... สถานที่ ...',sig:'ลงชื่อ ................ นายทะเบียน'},
+ 'จร':{L:'จร',no:'๑',party:'โจทก์ร่วม',sender:'นางสาวสมใจ',case:'อ.๑๒๐๐/๒๕๖๙',title:'ใบเสร็จรับเงินค่ารักษาพยาบาล',head:'โรงพยาบาลตัวอย่าง',body:'ได้รับเงินจาก นางสาวสมใจ เดินดี ค่าผ่าตัด ค่าห้อง ค่ายา รวมเป็นเงิน ๑๘๕,๐๐๐ บาท ...',sig:'ลงชื่อ ................ เจ้าหน้าที่การเงิน'},
  'ค':{L:'ค',no:'๑',party:'ผู้คัดค้าน',sender:'นางซี (ถามค้าน)',case:'พ.๔๕๖/๒๕๖๙',title:'หนังสือแสดงความไม่ยินยอม',head:'เขียนที่ ...',body:'ข้าพเจ้าในฐานะทายาทโดยธรรมของนายอี สมมติ ไม่ยินยอมให้นางซีเป็นผู้จัดการมรดก ...',sig:'ลงชื่อ ................ ทายาท'}
 };
 let party='จ';
@@ -2170,13 +2189,13 @@ const S={
  xcourt:{rect:1,fld:0,n:'เขียนชื่อศาล',who:'ทนายความ',ic:'🏛️',html:P=>`<div class="xf">จังหวัดตัวอย่าง</div>`,after:['xbox'],ex:'เขียนชื่อศาลให้ตรงกับศาลที่พิจารณา'},
  xcase:{rect:1,fld:1,n:'เขียนเลขคดีหมายเลขดำ',who:'ทนายความ',ic:'🔢',html:P=>`<div class="xf">${P.case}</div>`,after:['xbox'],ex:'เลขคดีกันเอกสารสลับสำนวน โดยเฉพาะเมื่อมีหลายคดีในวันเดียวกัน'},
  xmark:{rect:1,fld:2,n:'เขียนเลขหมาย + จำนวนแผ่น (เช่น จ.๒ รวม ๒ แผ่น)',who:'ตามคำสั่งศาล',ic:'🅹',html:P=>`<div class="xf mk">${P.L}.${P.no}<small style="font-size:.55em;margin-left:.4em">(รวม ๒ แผ่น)</small></div>`,after:['xcourt','xcase'],ex:'เขียนเลขหมายตามที่ศาลกำหนด <b>พร้อมจำนวนแผ่นทั้งหมด</b> เช่น “จ.๒ (รวม ๒ แผ่น)” เพื่อกันแผ่นหลุดหรือขาดหาย · เขียน<b>หลังศาลสั่งรับและกำหนดเลข</b>เท่านั้น ห้ามเขียนล่วงหน้า · ตัวอักษรตามฝ่ายที่อ้าง: จ. โจทก์ · ล. จำเลย · ร. ผู้ร้อง · ค. ผู้คัดค้าน'},
- xparty:{rect:1,fld:3,n:'เขียนผู้อ้างส่ง',who:'ทนายความ',ic:'👤',html:P=>`<div class="xf">${P.party}</div>`,after:['xmark'],ex:'ระบุเฉพาะ<b>ฝ่ายที่อ้างส่ง</b> เช่น โจทก์ / จำเลย / ผู้ร้อง / ผู้คัดค้าน — ต้องสอดคล้องกับตัวอักษรหมาย (จ./ล./ร./ค.)'},
+ xparty:{rect:1,fld:3,n:'เขียนผู้อ้างส่ง',who:'ทนายความ',ic:'👤',html:P=>`<div class="xf">${P.party}</div>`,after:['xmark'],ex:'ระบุเฉพาะ<b>ฝ่ายที่อ้างส่ง</b> เช่น โจทก์ / จำเลย / ผู้ร้อง / ผู้คัดค้าน / โจทก์ร่วม — ต้องสอดคล้องกับตัวอักษรหมาย (จ./ล./ร./ค./จร.)'},
  xjudge:{rect:1,fld:4,n:'ผู้พิพากษาลงชื่อ',who:'ผู้พิพากษาเท่านั้น — ทนายห้ามเซ็น',ic:'⚖️',html:P=>`<div class="xf jsig">(ลายมือชื่อผู้พิพากษา)</div>`,after:['xmark'],ex:'ช่องนี้<b>ผู้พิพากษาเป็นผู้ลงลายมือชื่อ</b>เมื่อรับเอกสารเข้าสำนวน — ทนายความ เจ้าหน้าที่ หรือพยาน <b>ห้ามเซ็นแทนเด็ดขาด</b> ทนายมีหน้าที่ยื่นเอกสารให้ศาลลงชื่อเท่านั้น'},
  xdate:{rect:1,fld:5,n:'ประทับตราวันที่ (ใต้ชื่อผู้พิพากษา)',who:'ทนาย/เจ้าหน้าที่',ic:'📅',html:P=>`<div class="xf dt"><span>${thDate}</span></div>`,after:['xjudge'],ex:'ประทับตราวันที่ใน<b>บรรทัดใต้ลายมือชื่อผู้พิพากษา</b> (ไม่ต้องลงเวลา) — ระวังอย่าประทับทับลายมือชื่อ และไม่ประทับก่อนที่ผู้พิพากษาจะลงชื่อ'},
  xlawsig:{trap:1,n:'ลายมือชื่อทนาย',who:'ทนายความ',ic:'✍️',html:()=>`<div class="sb">ทนาย ตัวอย่าง</div>`,ex:''},
 };
 const DOCS={
- exhibit:{n:'เอกสารที่อ้างส่งศาล (หมาย จ./ล./ร./ค.)',spread:1,stamps:['xbox','xcourt','xcase','xmark','xparty','xjudge','xdate'],extra:['xlawsig'],
+ exhibit:{n:'เอกสารที่อ้างส่งศาล (หมาย จ./ล./ร./ค./จร.)',spread:1,stamps:['xbox','xcourt','xcase','xmark','xparty','xjudge','xdate'],extra:['xlawsig'],
    zones:{xbox:BOX,xcourt:row(0),xcase:row(1),xmark:row(2),xparty:row(3),xjudge:row(4),xdate:row(5)},
    body:P=>`<div class="pg" style="left:0"><div style="font-size:.85em;color:#555;width:34%">${P.head}</div>
      <div style="height:35%"></div><div class="t">${P.title}</div>
@@ -4026,7 +4045,7 @@ function initQuiz(){
 $('#quizReset').onclick=initQuiz;
 
 /* init */
-drawFlow(0);renderLab();initOrd();initQuiz();renderCourt();route();
+renderLab();initOrd();initQuiz();renderCourt();route();
 </script>
 </body>
 </html>
