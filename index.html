@@ -429,10 +429,10 @@ kbd{background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-
     <div class="card ctrl" id="simBar" style="display:none">
       <div class="row">
         <button class="b" id="prev">◀ ย้อน</button><button class="b primary" id="next">ถัดไป ▶</button>
-        <button class="b" id="auto">▶︎ อัตโนมัติ</button><button class="b" id="restart">↺</button><button class="b" id="sumBtn" onclick="openSum()" title="เปิดสรุปรายการทั้งคดีทับฉาก — เปิดที่หน้าของวันนี้">📋 สรุปทั้งคดี</button>
+        <button class="b" id="auto">▶︎ อัตโนมัติ</button><button class="b" id="restart">↺</button><button class="b" id="dragReset" onclick="resetSimDrag()" style="display:none" title="คืนตำแหน่งตัวละครและวัตถุของขั้นนี้ตามบท">↺ คืนตำแหน่งเดิม</button><button class="b" id="sumBtn" onclick="openSum()" title="เปิดสรุปรายการทั้งคดีทับฉาก — เปิดที่หน้าของวันนี้">📋 สรุปทั้งคดี</button>
         <label class="muted" style="display:flex;gap:4px;align-items:center"><input type="checkbox" id="readNote"> อ่าน 📘 ด้วยเสียง</label>
       </div>
-      <div class="muted" style="margin-top:4px">คีย์บอร์ด <kbd>←</kbd> <kbd>→</kbd> · คลิกบุคคลในภาพเพื่อดูบทบาท · <b style="color:var(--red)">วงแดง</b> บนเลขขั้น = มีการหมายเอกสาร</div>
+      <div class="muted" style="margin-top:4px">คีย์บอร์ด <kbd>←</kbd> <kbd>→</kbd> · คลิกบุคคลในภาพเพื่อดูบทบาท · <b>ลาก</b>ตัวละครหรือวัตถุเพื่อย้ายได้ (จำไว้เฉพาะขั้นนั้น) · <b style="color:var(--red)">วงแดง</b> บนเลขขั้น = มีการหมายเอกสาร</div>
     </div>
     <div class="card dlg" id="side"></div>
     <details class="card" id="objGuide"><summary><b>⚖️ คู่มือการคัดค้าน และการขอให้ศาลบันทึก</b> <span class="muted">(แตะเพื่อเปิด — ใช้ประกอบฉากสืบพยาน)</span></summary><div id="objBody"></div></details>
@@ -806,7 +806,7 @@ function svgCourt(o){
   return h+'</svg>';
 }
 function bindNodes(labels){
-  document.querySelectorAll('#court .node').forEach(g=>g.onclick=()=>{
+  document.querySelectorAll('#court .node').forEach(g=>g.onclick=()=>{if(g.dataset.mv)return;
     const n=NODE[g.dataset.k];openPop(`<div class="who"><div class="av" style="background:${n.c}">${n.ic}</div><b>${labels[g.dataset.k]||n.l}</b></div><p>${n.info}</p>`)});
 }
 function movePositions(pos){
@@ -2217,8 +2217,33 @@ function simState(){
     for(const k in (st.pm||{}))if(pp[k]){pp[k].x=st.pm[k][0];pp[k].y=st.pm[k][1]}}
   const pos={};cur.use.forEach(id=>{const s=slots[id];if(s==='x')return;
     pos[id]=Array.isArray(s)?s:(s==='seat'&&cur.pos&&cur.pos[id])?cur.pos[id]:(posOf(id,s)||[500,650])});
+  const D=(SIMDRAG[cur.id]||{})[idx];
+  if(D){for(const k in D.n||{})if(pos[k])pos[k]=D.n[k].slice();for(const k in D.p||{})if(pp[k]){pp[k].x=D.p[k][0];pp[k].y=D.p[k][1]}}
   return {bg,pos,props:Object.values(pp).filter(p=>(p.b||cur.bg||'court')===bg)};
 }
+/* ===== ลากตัวละคร / วัตถุในฉากจำลอง — จำตำแหน่งแยกทีละขั้น (บันทึกในเครื่อง) ===== */
+let SIMDRAG={};try{SIMDRAG=JSON.parse(localStorage.getItem('moot_simdrag')||'{}')||{}}catch(e){SIMDRAG={}}
+const saveSimDrag=()=>{try{localStorage.setItem('moot_simdrag',JSON.stringify(SIMDRAG))}catch(e){}};
+function simDragSlot(){const S=SIMDRAG[cur.id]=SIMDRAG[cur.id]||{};return S[idx]=S[idx]||{n:{},p:{}}}
+function hasSimDrag(){const D=(SIMDRAG[cur.id]||{})[idx];return !!D&&(Object.keys(D.n||{}).length+Object.keys(D.p||{}).length>0)}
+function resetSimDrag(){if(SIMDRAG[cur.id]){delete SIMDRAG[cur.id][idx];if(!Object.keys(SIMDRAG[cur.id]).length)delete SIMDRAG[cur.id];saveSimDrag()}renderSim(true)}
+function bindSimDrag(){const svg=document.querySelector('#court svg');if(!svg)return;
+ const toSvg=e=>{const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())};
+ const drag=(g,get,set,done)=>{g.style.touchAction='none';g.addEventListener('pointerdown',e=>{if(mode!=='sim')return;e.preventDefault();
+   const o0=get();if(!o0)return;g.setPointerCapture(e.pointerId);g.classList.add('drag');const p0=toSvg(e);let moved=false,last=o0;
+   const mv=ev=>{const p=toSvg(ev),dx=p.x-p0.x,dy=p.y-p0.y;if(Math.abs(dx)+Math.abs(dy)>5)moved=true;if(!moved)return;
+     last=[Math.round(Math.max(20,Math.min(980,o0[0]+dx))),Math.round(Math.max(20,Math.min(700,o0[1]+dy)))];set(last)};
+   const up=()=>{g.removeEventListener('pointermove',mv);g.removeEventListener('pointerup',up);g.removeEventListener('pointercancel',up);g.classList.remove('drag');
+     if(moved){g.dataset.mv='1';setTimeout(()=>{delete g.dataset.mv},50);done(last)}};
+   g.addEventListener('pointermove',mv);g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up)})};
+ svg.querySelectorAll('.node').forEach(g=>{const k=g.dataset.k;
+  drag(g,()=>{const P=simState().pos[k];return P&&P.slice()},p=>{g.style.transform=`translate(${p[0]}px,${p[1]}px)`;if(S3.o){S3.o.pos[k]=p;if(V3.on)sync3D()}},
+   p=>{simDragSlot().n[k]=p;saveSimDrag();updDragBtn()})});
+ svg.querySelectorAll('.prop').forEach(g=>{const k=g.dataset.p;
+  drag(g,()=>{const P=simState().props.find(z=>z.id===k);return P&&[P.x,P.y]},p=>{g.style.transform=`translate(${p[0]}px,${p[1]}px)`},
+   p=>{simDragSlot().p[k]=p;saveSimDrag();updDragBtn()})});
+}
+function updDragBtn(){const b=document.getElementById('dragReset');if(b)b.style.display=mode==='sim'&&cur&&hasSimDrag()?'':'none'}
 function simPositions(){return simState().pos}
 /* ฉากนอกห้องพิจารณา: ซูมให้พอดีกับตัวละครและวัตถุที่ใช้ทั้งฉาก (คงที่ตลอดฉาก ไม่ซูมเข้าออกระหว่างขั้น) */
 const VBC={};
@@ -2236,9 +2261,9 @@ const STG=['ซักถาม','ถามค้าน','ถามติง','�
 function stageBar(g){if(!g)return '';if(!STG.includes(g))return `<div class="stg"><span class="on">${g}</span></div>`;
  return `<div class="stg">${STG.map((x,i)=>`<span class="${x===g?'on':''}">${th(i+1)}. ${x}</span>`).join('<i>›</i>')}</div>`}
 function exMini(e){return `<div class="exm"><div><span>ศาล</span><b class="v">จังหวัดตัวอย่าง</b></div><div><span>คดีหมายเลขดำที่</span><b class="v">${e.case}</b></div><div class="mk2"><span>เอกสารหมาย</span><b class="v">${e.mark} <small style="font-size:.6em">(รวม ${e.pg||"๑"} แผ่น)</small></b></div><div><span>ผู้อ้างส่ง</span><b class="v">${e.party}</b></div><div><span>ผู้พิพากษา</span><b class="v" style="color:#7a1f1f">(ลายมือชื่อผู้พิพากษา)</b></div><div><span>วันที่</span><b class="dt">${thDate}</b></div></div><br><span class="golab" data-lab="${e.lab}">✋ ไปฝึกปั๊มหมาย ${e.mark.slice(0,2)} ด้วยตัวเอง ➜</span>`}
-function renderSim(full){{const og=document.getElementById('objGuide');if(og)og.style.display=(mode==='sim'&&cur&&cur.steps.some(s=>s.o||['ซักถาม','ถามค้าน','ถามติง','ศาลถาม'].includes(s.g)))?'':'none'}
+function renderSim(full){setTimeout(updDragBtn,0);{const og=document.getElementById('objGuide');if(og)og.style.display=(mode==='sim'&&cur&&cur.steps.some(s=>s.o||['ซักถาม','ถามค้าน','ถามติง','ศาลถาม'].includes(s.g)))?'':'none'}
   const SS=simState(),key=SS.bg+'|'+JSON.stringify(SS.props)+'|'+Object.keys(SS.pos).join(',');
-  if(full||key!==simKey){simKey=key;$('#court').innerHTML=svgCourt({use:Object.keys(SS.pos),labels:cur.labels,pos:SS.pos,sideP:cur.sideP,sideD:cur.sideD,detained:cur.detained,bg:SS.bg,props:SS.props,vb:SS.bg!=='court'?fitVB(SS.bg):null});bindNodes(cur.labels);
+  if(full||key!==simKey){simKey=key;$('#court').innerHTML=svgCourt({use:Object.keys(SS.pos),labels:cur.labels,pos:SS.pos,sideP:cur.sideP,sideD:cur.sideD,detained:cur.detained,bg:SS.bg,props:SS.props,vb:SS.bg!=='court'?fitVB(SS.bg):null});bindNodes(cur.labels);bindSimDrag();
     const c3=SS.bg==='court';$('#t3d').style.display=c3?'':'none';if(!c3&&V3.on)toggle3D()}
   else movePositions(SS.pos);
   const st=cur.steps[idx],lb=k=>cur.labels[k]||NODE[k].l;
